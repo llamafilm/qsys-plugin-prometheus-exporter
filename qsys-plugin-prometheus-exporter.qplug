@@ -1,0 +1,304 @@
+-- Prometheus Exporter plugin
+-- by Elliott Balsley
+
+-- Information block for the plugin
+PluginInfo = {
+  Name = "Prometheus Exporter",
+  Version = "1.0",
+  BuildVersion = "1.0.0.6",
+  Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
+  Author = "Elliott Balsley",
+  Description = "Prometheus Exporter for Qsys Core metrics",
+}
+
+-- Define the color of the plugin object in the design
+function GetColor(props)
+  return { 212, 236, 235 }
+end
+
+-- The name that will initially display when dragged into a design
+function GetPrettyName(props)
+  return PluginInfo.Name
+end
+
+PageNames = { "Control" }  --List the pages within the plugin
+
+-- Define User configurable Properties of the plugin
+function GetProperties()
+  local props = {}
+  table.insert(props, {
+    Name = 'Debug Print',
+    Type = 'enum',
+    Choices = {'None', 'Tx/Rx', 'Tx', 'Rx', 'Function Calls', 'All'},
+    Value = 'None'
+  })
+  return props
+end
+
+-- Optional function to update available properties when properties are altered by the user
+function RectifyProperties(props)
+  if props.plugin_show_debug.Value == false then
+    props['Debug Print'].IsHidden = true
+  end
+  return props
+end
+
+-- Defines the Controls used within the plugin
+function GetControls(props)
+  local ctrls = {}
+  table.insert (ctrls, {
+    Name = 'Status Component',
+    ControlType = 'Text'
+  })
+  
+  table.insert (ctrls, {
+    Name = 'Port',
+    ControlType = 'Knob',
+    DefaultValue = 10006,
+    ControlUnit = 'Integer',
+    Min = 1,
+    Max = 65535
+  })
+  
+  -- debug mode
+  -- table.insert(ctrls,{Name = 'code',ControlType = 'Text',UserPin = false,PinStyle = 'Input',Count = 1})
+  return ctrls
+end
+
+--Layout of controls and graphics for the plugin UI to display
+function GetControlLayout(props)
+  local layout = {}
+  local graphics = {}
+  -- debug mode
+  -- layout['code']={PrettyName='code',Style='None'}
+  
+  local CurrentPage = PageNames[props['page_index'].Value]
+  if CurrentPage == 'Control' then
+    -- header box
+    table.insert(graphics, {
+      Type = 'GroupBox',
+      Size = { 400, 40 },
+      Position = { 0, 0},
+      Fill = { 230, 82, 44 },
+      StrokeWidth = 0
+    })
+  
+    -- header text
+    table.insert(graphics, {
+      Type = 'Label',
+      Text = 'Prometheus Exporter',
+      Position = { 50, 0 },
+      Size = { 300, 40 },
+      Color = { 255, 255, 255 },
+      StrokeWidth = 0,
+      FontSize = 24
+    })
+  
+    -- header text version 
+    table.insert(graphics, {
+      Type = 'Label',
+      Text = PluginInfo.BuildVersion,
+      Position = { 360, 20 },
+      Size = { 40, 20 },
+      Color = { 255, 255, 255 },
+      StrokeWidth = 0,
+      FontSize = 10
+    })
+  
+    -- background box
+    table.insert(graphics, {
+      Type = 'GroupBox',
+      Size = { 400, 200 },
+      Position = { 0, 40},
+      Fill = { 220, 220, 220 },
+      StrokeWidth = 0
+    })
+  
+    -- host text entry
+    table.insert(graphics, {
+      Type = 'Label',
+      HTextAlign = 'Right',
+      Text = 'Status Component Name',
+      Position = { 0, 50 },
+      Size = { 180, 30 },
+      Margin = 5,
+      StrokeWidth = 0,
+      FontSize = 12
+    })
+    layout['Status Component'] = {
+      Style = 'ComboBox',
+      Position = { 180, 50 },
+      Size = { 180,30 },
+      Margin = 5,
+      CornerRadius = 4,
+      FontSize = 12
+    }
+  
+    layout['Port'] = {
+      PrettyName='code',
+      Style='None'
+    }
+  
+  end
+  return layout, graphics
+end
+
+--Start event based logic
+if Controls then
+  -- helper function for debugging
+  function Dump(o, indent)
+    if indent == nil then indent = 0 end
+    if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+        if type(k) ~= 'number' then k = '"'..k..'"' end
+        s = s .. '\n' .. string.rep(' ', indent)  .. '['..k..'] = ' .. Dump(v, indent+2) .. ', '
+      end
+      return s .. ' }'
+    else
+      return tostring(o)
+    end
+  end -- end Dump
+  
+  function RemoveSocketFromTable(sock)
+    for k,v in pairs(Sockets) do
+      if v == sock then 
+        table.remove(Sockets, k) 
+        return
+      end
+    end
+  end
+  
+  function CreateMetrics()
+    local design = Design.GetStatus()
+  
+    local body = '# HELP qsys_chassis_temperature The current temperature, in Celsius, of the Core chassis.\n'
+    body = body .. '# TYPE qsys_chassis_temperature gauge\n'
+    body = body .. 'qsys_chassis_temperature ' .. Status['system.temperature'].Value .. '\n'
+  
+    body = '# HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing\n'
+    body = body .. '# TYPE qsys_core_status gauge\n'
+    body = body .. 'qsys_core_status ' .. math.floor(Status['status'].Value) .. '\n'
+  
+    body = body .. '# HELP qsys_memory_usage The percentage of memory used.\n'
+    body = body .. '# TYPE qsys_memory_usage gauge\n'
+    body = body .. 'qsys_memory_usage ' ..  Status['memory.usage'].Value .. '\n'
+  
+    body = body .. '# HELP qsys_core_info A metric with a constant \'1\' value with labels for textual data. Grandmaster is either Core name or the PTP Clock GUID\n'
+    body = body .. '# TYPE qsys_core_info gauge\n'
+    body = body .. 'qsys_core_info{ptp_grandmaster="' .. Status['grandmaster.name'].String .. '" ptp_parent_port="' .. Status['parent.port.name'].String .. '" version="' .. System.Version .. '" platform="' .. design.Platform .. '" design_code="' .. design.DesignCode .. '" design_name="' .. design.DesignName .. '"} 1' .. '\n'
+  
+    body = body .. '# HELP qsys_chassis_fan The current speed of the chassis fan in RPM.\n'
+    body = body .. '# TYPE qsys_chassis_fan gauge\n'
+    body = body .. 'qsys_chassis_fan ' ..  math.floor(Status['system.fan.1.speed'].Value) .. '\n'
+  
+    body = body .. '# HELP qsys_compute_control The percentage of non-DSP, control-only CPU usage\n'
+    body = body .. '# TYPE qsys_compute_control gauge\n'
+    body = body .. 'qsys_compute_control ' ..  Status['control.compute.usage'].Value .. '\n'
+  
+    body = body .. '# HELP qsys_compute_lua The percentage of CPU usage for script processing\n'
+    body = body .. '# TYPE qsys_compute_lua gauge\n'
+    body = body .. 'qsys_compute_lua ' ..  Status['lua.compute.usage'].Value .. '\n'
+  
+    body = body .. '# HELP qsys_compute_process The percentage of CPU usage for DSP, both Category 1 and Category 2 processing\n'
+    body = body .. '# TYPE qsys_compute_process gauge\n'
+    body = body .. 'qsys_compute_process ' ..  Status['process.compute.usage'].Value .. '\n'
+  
+    body = body .. '# HELP qsys_ptp_master boolean indicating if the Core is the Master Clock for the Q-SYS system or not. The Core can be the Master Clock even if the clock is synchronized to an external clock.\n'
+    body = body .. '# TYPE qsys_ptp_master gauge\n'
+    body = body .. 'qsys_ptp_master ' ..  math.floor(Status['clock.master'].Value) .. '\n'
+  
+    local clock_offset = tonumber(string.sub(Status['clock.offset'].String, 1, -3))
+    if clock_offset then
+      body = body .. '# HELP qsys_ptp_clock_offset how much of an offset exists, in microseconds, between this Core and the Master Clock. If this Core is the Master Clock, the offset is zero\n'
+      body = body .. '# TYPE qsys_ptp_clock_offset gauge\n'
+      body = body .. 'qsys_ptp_clock_offset ' .. clock_offset  .. '\n'
+    end
+  
+    body = body .. '# HELP qsys_processor_temperature The current temperature, in Celsius, of the Core processor.\n'
+    body = body .. '# TYPE qsys_processor_temperature gauge\n'
+    body = body .. 'qsys_processor_temperature ' ..  Status['processor.temperature'].Value .. '\n'
+  
+    return body
+  end
+  
+  function SocketHandler(sock, event) -- the arguments for this EventHandler are documented in the EventHandler definition of TcpSocket Properties
+    print( "TCP Socket Event: "..event )
+    if event == TcpSocket.Events.Data then
+      local request = sock:ReadLine(TcpSocket.EOL.Custom, '\r\n\r\n')
+      local url, protocol = request:match('^[^ ]+ ([^ \r\n]+) (HTTP[0-9/.]+)')
+      url = url:lower()
+      print('# Received ' .. protocol .. ' request ' .. url)
+      if(url == '/metrics') then
+        local body = CreateMetrics()
+        local payload = protocol .. ' 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
+        sock:Write(payload)
+      else
+        local body = '<html><head><title>Qsys Exporter</title><style>body {font-family:sans-serif; margin: 0;} header {  background-color: #e6522c;  color: #fff;  font-size: 1rem;  padding: 1rem;} main {padding: 1rem;} label {  display: inline-block;  width: 0.5em;}</style></head><body><header><h1>Qsys Core Exporter</h1></header><main><h2>Prometheus Exporter for Qsys Core</h2><div><ul><li><a href="/metrics">Metrics</a></li></ul></div></main></body></html>'
+        local payload = protocol .. ' 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
+        sock:Write(payload)
+      end
+    elseif event == TcpSocket.Events.Closed or
+           event == TcpSocket.Events.Error or
+           event == TcpSocket.Events.Timeout then
+      -- remove reference of socket from table so it's available for garbage collection
+      RemoveSocketFromTable(sock)
+    else
+      print('something else:', event)
+    end
+  end
+  
+  function Initialize()
+    if DebugFunction then print('Using component named:', Controls['Status Component'].String) end
+    Status = Component.New(Controls['Status Component'].String)
+  end
+  
+  -- table to store connected client sockets
+  -- this is required so the sockets don't get garbage collected since there aren't any other references to them in the script
+  Sockets = {}
+  Server = TcpSocketServer.New()
+  Controls['Status Component'].EventHandler = Initialize
+  
+  Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
+    SocketInstance.ReadTimeout = 2
+    if DebugFunction then print( "Got connection from", SocketInstance.PeerAddress ) end
+    table.insert(Sockets, SocketInstance)
+    SocketInstance.EventHandler = SocketHandler
+  end
+  
+  --Debug level
+  DebugTx, DebugRx, DebugFunction = false, false, false
+  DebugPrint = Properties['Debug Print'].Value
+  if DebugPrint == 'Tx/Rx' then
+    DebugTx, DebugRx = true, true
+  elseif DebugPrint == 'Tx' then
+    DebugTx = true
+  elseif DebugPrint == 'Rx' then
+    DebugRx = true
+  elseif DebugPrint == 'Function Calls' then
+    DebugFunction = true
+  elseif DebugPrint == 'All' then
+    DebugTx, DebugRx, DebugFunction = true, true, true
+  end
+  
+  -- populate ComboBox with core_status type components (should be only 1 option)
+  DevChoices={}
+  Components=Component.GetComponents()
+  
+  for _,v in pairs(Components) do
+    if v.Type == 'core_status' then
+      table.insert(DevChoices,v.Name)
+    end
+  end
+  if DebugFunction then print('DevChoices:', Dump(DevChoices)) end
+  if #DevChoices > 0 then
+    Controls['Status Component'].Choices = DevChoices
+  else
+    if DebugFunction then print("No Named Components in Design!") end
+  end
+  
+  if DebugFunction then print(string.format('Listening on HTTP port %d', Controls.Port.Value)) end
+  Server:Listen(Controls.Port.Value) -- This listen port is opened on all network interfaces
+  
+  Initialize()
+end

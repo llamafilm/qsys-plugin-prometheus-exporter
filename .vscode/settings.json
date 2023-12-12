@@ -1,0 +1,23 @@
+{
+  "editor.renderControlCharacters": true,
+  "files.associations": {
+    "*.json": "jsonc",
+    "*.qplug": "lua"
+  },
+  "editor.tabSize": 2,
+  "Lua.diagnostics.globals": [
+    "components",
+    "ctrls",
+    "props",
+    "graphics",
+    "layout",
+    "Controls",
+    "Network",
+    "Properties",
+    "Design",
+    "System",
+    "TcpSocket",
+    "TcpSocketServer",
+    "Component"
+  ]
+}
