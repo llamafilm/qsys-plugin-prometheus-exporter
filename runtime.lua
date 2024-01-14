@@ -33,10 +33,6 @@ function CreateMetrics()
   body = body .. '# TYPE qsys_core_status gauge\n'
   body = body .. 'qsys_core_status ' .. math.floor(Status['status'].Value) .. '\n'
 
-  body = body .. '# HELP qsys_memory_usage The percentage of memory used.\n'
-  body = body .. '# TYPE qsys_memory_usage gauge\n'
-  body = body .. 'qsys_memory_usage ' ..  Status['memory.usage'].Value .. '\n'
-
   body = body .. '# HELP qsys_core_info A metric with a constant \'1\' value with labels for textual data. Grandmaster is either Core name or the PTP Clock GUID\n'
   body = body .. '# TYPE qsys_core_info gauge\n'
   body = body .. 'qsys_core_info{ptp_grandmaster="' .. Status['grandmaster.name'].String .. '" ptp_parent_port="' .. Status['parent.port.name'].String .. '" version="' .. System.Version .. '" platform="' .. design.Platform .. '" design_code="' .. design.DesignCode .. '" design_name="' .. design.DesignName .. '"} 1' .. '\n'
@@ -45,24 +41,12 @@ function CreateMetrics()
   body = body .. '# TYPE qsys_chassis_fan gauge\n'
   body = body .. 'qsys_chassis_fan ' ..  math.floor(Status['system.fan.1.speed'].Value) .. '\n'
 
-  body = body .. '# HELP qsys_compute_control The percentage of non-DSP, control-only CPU usage\n'
-  body = body .. '# TYPE qsys_compute_control gauge\n'
-  body = body .. 'qsys_compute_control ' ..  Status['control.compute.usage'].Value .. '\n'
-
-  body = body .. '# HELP qsys_compute_lua The percentage of CPU usage for script processing\n'
-  body = body .. '# TYPE qsys_compute_lua gauge\n'
-  body = body .. 'qsys_compute_lua ' ..  Status['lua.compute.usage'].Value .. '\n'
-
-  body = body .. '# HELP qsys_compute_process The percentage of CPU usage for DSP, both Category 1 and Category 2 processing\n'
-  body = body .. '# TYPE qsys_compute_process gauge\n'
-  body = body .. 'qsys_compute_process ' ..  Status['process.compute.usage'].Value .. '\n'
-
   body = body .. '# HELP qsys_ptp_master boolean indicating if the Core is the Master Clock for the Q-SYS system or not. The Core can be the Master Clock even if the clock is synchronized to an external clock.\n'
   body = body .. '# TYPE qsys_ptp_master gauge\n'
   body = body .. 'qsys_ptp_master ' ..  math.floor(Status['clock.master'].Value) .. '\n'
 
   local clock_offset = tonumber(string.sub(Status['clock.offset'].String, 1, -3))
-  if clock_offset then
+  if clock_offset then -- this doesn't exist in emulation mode
     body = body .. '# HELP qsys_ptp_clock_offset how much of an offset exists, in microseconds, between this Core and the Master Clock. If this Core is the Master Clock, the offset is zero\n'
     body = body .. '# TYPE qsys_ptp_clock_offset gauge\n'
     body = body .. 'qsys_ptp_clock_offset ' .. clock_offset  .. '\n'
@@ -72,29 +56,50 @@ function CreateMetrics()
   body = body .. '# TYPE qsys_processor_temperature gauge\n'
   body = body .. 'qsys_processor_temperature ' ..  Status['processor.temperature'].Value .. '\n'
 
+  if VerboseEnabled == 'True' and (not System.IsEmulating) then
+    body = body .. '# HELP qsys_memory_usage The percentage of memory used.\n'
+    body = body .. '# TYPE qsys_memory_usage gauge\n'
+    body = body .. 'qsys_memory_usage ' ..  Status['memory.usage'].Value .. '\n'
+
+    body = body .. '# HELP qsys_compute_control The percentage of non-DSP, control-only CPU usage\n'
+    body = body .. '# TYPE qsys_compute_control gauge\n'
+    body = body .. 'qsys_compute_control ' ..  Status['control.compute.usage'].Value .. '\n'
+
+    body = body .. '# HELP qsys_compute_lua The percentage of CPU usage for script processing\n'
+    body = body .. '# TYPE qsys_compute_lua gauge\n'
+    body = body .. 'qsys_compute_lua ' ..  Status['lua.compute.usage'].Value .. '\n'
+
+    body = body .. '# HELP qsys_compute_process The percentage of CPU usage for DSP, both Category 1 and Category 2 processing\n'
+    body = body .. '# TYPE qsys_compute_process gauge\n'
+    body = body .. 'qsys_compute_process ' ..  Status['process.compute.usage'].Value .. '\n'
+  end
+
   return body
 end
 
 function SocketHandler(sock, event) -- the arguments for this EventHandler are documented in the EventHandler definition of TcpSocket Properties
-  print( "TCP Socket Event: "..event )
   if event == TcpSocket.Events.Data then
     local request = sock:ReadLine(TcpSocket.EOL.Custom, '\r\n\r\n')
     local url, protocol = request:match('^[^ ]+ ([^ \r\n]+) (HTTP[0-9/.]+)')
     url = url:lower()
-    print('# Received ' .. protocol .. ' request ' .. url)
+    if DebugRx then print('# Received ' .. protocol .. ' request ' .. url) end
     if(url == '/metrics') then
       local body = CreateMetrics()
       local payload = protocol .. ' 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
       sock:Write(payload)
-    else
+    elseif(url == '/') then
       local body = '<html><head><title>Qsys Exporter</title><style>body {font-family:sans-serif; margin: 0;} header {  background-color: #e6522c;  color: #fff;  font-size: 1rem;  padding: 1rem;} main {padding: 1rem;} label {  display: inline-block;  width: 0.5em;}</style></head><body><header><h1>Qsys Core Exporter</h1></header><main><h2>Prometheus Exporter for Qsys Core</h2><div><ul><li><a href="/metrics">Metrics</a></li></ul></div></main></body></html>'
       local payload = protocol .. ' 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
+      sock:Write(payload)
+    else
+      local payload = protocol .. ' 404 Not Found\r\nDate: ' .. os.date() .. '\r\nContent-Length: 0\r\n\r\n'
       sock:Write(payload)
     end
   elseif event == TcpSocket.Events.Closed or
          event == TcpSocket.Events.Error or
          event == TcpSocket.Events.Timeout then
     -- remove reference of socket from table so it's available for garbage collection
+    if DebugRx then print( "TCP Socket Event: "..event ) end
     RemoveSocketFromTable(sock)
   else
     print('something else:', event)
@@ -102,19 +107,31 @@ function SocketHandler(sock, event) -- the arguments for this EventHandler are d
 end
 
 function Initialize()
-  if DebugFunction then print('Using component named:', Controls['Status Component'].String) end
-  Status = Component.New(Controls['Status Component'].String)
+  if DebugFunction then print('Using component named:', Controls['Status Component Name'].String) end
+  Status = Component.New(Controls['Status Component Name'].String)
+
+  -- Find out if chosen status component is verbose enabled
+  Components = Component.GetComponents()
+  for _,v1 in ipairs(Components) do   
+    if v1.Name == Controls['Status Component Name'].String then
+      for _,v2 in ipairs(v1.Properties) do
+        if v2.Name == 'verbose' then
+          VerboseEnabled =v2.Value
+        end
+      end
+    end
+  end
 end
 
 -- table to store connected client sockets
 -- this is required so the sockets don't get garbage collected since there aren't any other references to them in the script
 Sockets = {}
 Server = TcpSocketServer.New()
-Controls['Status Component'].EventHandler = Initialize
+Controls['Status Component Name'].EventHandler = Initialize
 
 Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
   SocketInstance.ReadTimeout = 2
-  if DebugFunction then print( "Got connection from", SocketInstance.PeerAddress ) end
+  if DebugRx then print( "Got connection from", SocketInstance.PeerAddress ) end
   table.insert(Sockets, SocketInstance)
   SocketInstance.EventHandler = SocketHandler
 end
@@ -135,17 +152,18 @@ elseif DebugPrint == 'All' then
 end
 
 -- populate ComboBox with core_status type components (should be only 1 option)
-DevChoices={}
+StatusComponents={}
 Components=Component.GetComponents()
 
 for _,v in pairs(Components) do
   if v.Type == 'core_status' then
-    table.insert(DevChoices,v.Name)
+    table.insert(StatusComponents,v.Name)
   end
 end
-if DebugFunction then print('DevChoices:', Dump(DevChoices)) end
-if #DevChoices > 0 then
-  Controls['Status Component'].Choices = DevChoices
+if DebugFunction then print('Status Components:', Dump(StatusComponents)) end
+if #StatusComponents > 0 then
+  Controls['Status Component Name'].Choices = StatusComponents
+  Controls['Status Component Name'].String = StatusComponents[1]
 else
   if DebugFunction then print("No Named Components in Design!") end
 end

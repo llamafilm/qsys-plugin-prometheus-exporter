@@ -54,7 +54,7 @@ if CurrentPage == 'Control' then
     StrokeWidth = 0,
     FontSize = 12
   })
-  layout['Status Component'] = {
+  layout['Status Component Name'] = {
     Style = 'ComboBox',
     Position = { 180, 50 },
     Size = { 180,30 },

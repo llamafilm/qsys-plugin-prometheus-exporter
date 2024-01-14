@@ -1,5 +1,5 @@
 table.insert (ctrls, {
-  Name = 'Status Component',
+  Name = 'Status Component Name',
   ControlType = 'Text'
 })
 
