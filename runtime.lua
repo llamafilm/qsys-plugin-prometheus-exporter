@@ -86,7 +86,7 @@ function CreateMetrics()
     }
 
     for _,stat in ipairs(cpu_stats) do
-      local label = stat:gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
+      local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
       for line in Status[stat].String:gmatch("[^\r\n]+") do
         for k,v in line:gmatch("(.*): (.*)") do
           if not k:find('average') then
