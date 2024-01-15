@@ -29,7 +29,7 @@ function CreateMetrics()
   body = body .. '# TYPE qsys_chassis_temperature gauge\n'
   body = body .. 'qsys_chassis_temperature ' .. Status['system.temperature'].Value .. '\n'
 
-  body = '# HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing\n'
+  body = body .. '# HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing\n'
   body = body .. '# TYPE qsys_core_status gauge\n'
   body = body .. 'qsys_core_status ' .. math.floor(Status['status'].Value) .. '\n'
 
@@ -82,7 +82,7 @@ function CreateMetrics()
       'cpu.status.block.2.512.statistics',
       'cpu.status.param.0.statistics',
       'cpu.status.param.1.statistics',
-      'cpu.status.param.1.statistics'
+      'cpu.status.param.2.statistics'
     }
 
     for _,stat in ipairs(cpu_stats) do
