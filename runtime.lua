@@ -72,6 +72,30 @@ function CreateMetrics()
     body = body .. '# HELP qsys_compute_process The percentage of CPU usage for DSP, both Category 1 and Category 2 processing\n'
     body = body .. '# TYPE qsys_compute_process gauge\n'
     body = body .. 'qsys_compute_process ' ..  Status['process.compute.usage'].Value .. '\n'
+
+    local cpu_stats = {
+      'cpu.status.audio.0.statistics',
+      'cpu.status.audio.1.statistics',
+      'cpu.status.audio.2.statistics',
+      'cpu.status.block.0.512.statistics',
+      'cpu.status.block.1.512.statistics',
+      'cpu.status.block.2.512.statistics',
+      'cpu.status.param.0.statistics',
+      'cpu.status.param.1.statistics',
+      'cpu.status.param.1.statistics'
+    }
+
+    for _,stat in ipairs(cpu_stats) do
+      local label = stat:gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
+      for line in Status[stat].String:gmatch("[^\r\n]+") do
+        for k,v in line:gmatch("(.*): (.*)") do
+          if not k:find('average') then
+            body = body .. '# TYPE ' .. label .. '_' .. k .. ' counter\n'
+            body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+          end
+        end
+      end
+    end
   end
 
   return body
