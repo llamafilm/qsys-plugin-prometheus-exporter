@@ -5,7 +5,7 @@
 PluginInfo = {
   Name = "Prometheus Exporter",
   Version = "1.1",
-  BuildVersion = "1.1.1.0",
+  BuildVersion = "1.1.2.3",
   Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
   Author = "Elliott Balsley",
   Description = "Prometheus Exporter for Qsys Core metrics",
@@ -176,7 +176,7 @@ if Controls then
     body = body .. '# TYPE qsys_chassis_temperature gauge\n'
     body = body .. 'qsys_chassis_temperature ' .. Status['system.temperature'].Value .. '\n'
   
-    body = '# HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing\n'
+    body = body .. '# HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing\n'
     body = body .. '# TYPE qsys_core_status gauge\n'
     body = body .. 'qsys_core_status ' .. math.floor(Status['status'].Value) .. '\n'
   
@@ -229,14 +229,19 @@ if Controls then
         'cpu.status.block.2.512.statistics',
         'cpu.status.param.0.statistics',
         'cpu.status.param.1.statistics',
-        'cpu.status.param.1.statistics'
+        'cpu.status.param.2.statistics'
       }
   
       for _,stat in ipairs(cpu_stats) do
-        local label = stat:gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
+        local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
         for line in Status[stat].String:gmatch("[^\r\n]+") do
           for k,v in line:gmatch("(.*): (.*)") do
-            if not k:find('average') then
+            if k:find('average') then
+              -- skip
+            elseif k:find('current') or k:find('spread') then
+              body = body .. '# TYPE ' .. label .. '_' .. k .. ' gauge\n'
+              body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+            else
               body = body .. '# TYPE ' .. label .. '_' .. k .. ' counter\n'
               body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
             end

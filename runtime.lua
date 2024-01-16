@@ -89,7 +89,12 @@ function CreateMetrics()
       local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
       for line in Status[stat].String:gmatch("[^\r\n]+") do
         for k,v in line:gmatch("(.*): (.*)") do
-          if not k:find('average') then
+          if k:find('average') then
+            -- skip
+          elseif k:find('current') or k:find('spread') then
+            body = body .. '# TYPE ' .. label .. '_' .. k .. ' gauge\n'
+            body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+          else
             body = body .. '# TYPE ' .. label .. '_' .. k .. ' counter\n'
             body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
           end
