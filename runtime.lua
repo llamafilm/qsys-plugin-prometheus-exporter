@@ -35,7 +35,7 @@ function CreateMetrics()
 
   body = body .. '# HELP qsys_core_info A metric with a constant \'1\' value with labels for textual data. Grandmaster is either Core name or the PTP Clock GUID\n'
   body = body .. '# TYPE qsys_core_info gauge\n'
-  body = body .. 'qsys_core_info{ptp_grandmaster="' .. Status['grandmaster.name'].String .. '" ptp_parent_port="' .. Status['parent.port.name'].String .. '" version="' .. System.Version .. '" platform="' .. design.Platform .. '" design_code="' .. design.DesignCode .. '" design_name="' .. design.DesignName .. '"} 1' .. '\n'
+  body = body .. 'qsys_core_info{ptp_grandmaster="' .. Status['grandmaster.name'].String .. '",ptp_parent_port="' .. Status['parent.port.name'].String .. '",version="' .. System.Version .. '",platform="' .. design.Platform .. '",design_code="' .. design.DesignCode .. '",design_name="' .. design.DesignName .. '"} 1' .. '\n'
 
   body = body .. '# HELP qsys_chassis_fan The current speed of the chassis fan in RPM.\n'
   body = body .. '# TYPE qsys_chassis_fan gauge\n'
