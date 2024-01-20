@@ -12,7 +12,7 @@ Example output:
 qsys_core_status 0
 # HELP qsys_core_info A metric with a constant '1' value with labels for textual data. Grandmaster is either Core name or the PTP Clock GUID
 # TYPE qsys_core_info gauge
-qsys_core_info{ptp_grandmaster="00-60-74-ff-fe-fb-99-de" ptp_parent_port="" version="9.9.0-2308.008" platform="Core Nano" design_code="jj95JoOHwguq" design_name="The Jar"} 1
+qsys_core_info{ptp_grandmaster="00-60-74-ff-fe-fb-99-de",ptp_parent_port="",version="9.9.0-2308.008",platform="Core Nano",design_code="jj95JoOHwguq",design_name="The Jar"} 1
 # HELP qsys_chassis_fan The current speed of the chassis fan in RPM.
 # TYPE qsys_chassis_fan gauge
 qsys_chassis_fan 2626
