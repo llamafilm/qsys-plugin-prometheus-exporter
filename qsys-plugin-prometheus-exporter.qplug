@@ -5,7 +5,7 @@
 PluginInfo = {
   Name = "Prometheus Exporter",
   Version = "1.1",
-  BuildVersion = "1.1.3.0",
+  BuildVersion = "1.1.4.3",
   Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
   Author = "Elliott Balsley",
   Description = "Prometheus Exporter for Qsys Core metrics",
@@ -133,12 +133,12 @@ function GetControlLayout(props)
       CornerRadius = 4,
       FontSize = 12
     }
-  
+
     layout['Port'] = {
       PrettyName='code',
       Style='None'
     }
-  
+
   end
   return layout, graphics
 end
@@ -227,23 +227,34 @@ if Controls then
         'cpu.status.block.0.512.statistics',
         'cpu.status.block.1.512.statistics',
         'cpu.status.block.2.512.statistics',
+        'cpu.status.block.0.statistics',
+        'cpu.status.block.1.statistics',
+        'cpu.status.block.2.statistics',
         'cpu.status.param.0.statistics',
         'cpu.status.param.1.statistics',
         'cpu.status.param.2.statistics'
       }
   
+      -- build list of available controls so we can skip any that don't exist (i.e. DSP 2)
+      local controls = {}
+      for _,v in ipairs(Component.GetControls(Status)) do
+        controls[v.Name] = true
+      end
+  
       for _,stat in ipairs(cpu_stats) do
-        local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
-        for line in Status[stat].String:gmatch("[^\r\n]+") do
-          for k,v in line:gmatch("(.*): (.*)") do
-            if k:find('average') then
-              -- skip
-            elseif k:find('current') or k:find('spread') then
-              body = body .. '# TYPE ' .. label .. '_' .. k .. ' gauge\n'
-              body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
-            else
-              body = body .. '# TYPE ' .. label .. '_' .. k .. ' counter\n'
-              body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+        if controls[stat] ~= nil then
+          local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
+          for line in Status[stat].String:gmatch("[^\r\n]+") do
+            for k,v in line:gmatch("(.*): (.*)") do
+              if k:find('average') then
+                -- skip
+              elseif k:find('current') or k:find('spread') then
+                body = body .. '# TYPE ' .. label .. '_' .. k .. ' gauge\n'
+                body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+              else
+                body = body .. '# TYPE ' .. label .. '_' .. k .. ' counter\n'
+                body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+              end
             end
           end
         end
@@ -307,7 +318,11 @@ if Controls then
   
   Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
     SocketInstance.ReadTimeout = 2
-    if DebugRx then print( "Got connection from", SocketInstance.PeerAddress ) end
+    if tonumber(System.MajorVersion) >= 9 and tonumber(System.MinorVersion) >= 8 then
+      if DebugRx then print( "Got connection from", SocketInstance.PeerAddress ) end
+    else
+      if DebugRx then print( "Got connection") end
+    end
     table.insert(Sockets, SocketInstance)
     SocketInstance.EventHandler = SocketHandler
   end
