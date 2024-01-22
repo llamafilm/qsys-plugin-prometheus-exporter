@@ -63,9 +63,22 @@ if CurrentPage == 'Control' then
     FontSize = 12
   }
 
-  layout['Port'] = {
-    PrettyName='code',
-    Style='None'
+  -- status display
+  table.insert(graphics, {
+    Type = 'Label',
+    HTextAlign = 'Right',
+    Text = 'Status',
+    Position = { 0, 80 },
+    Size = { 180, 30 },
+    Margin = 5,
+    StrokeWidth = 0,
+    FontSize = 12
+  })
+  layout['Status'] = {
+    Position = { 180, 80 },
+    Size = { 180, 30 },
+    Margin = 5,
+    CornerRadius = 4
   }
 
 end

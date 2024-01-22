@@ -5,7 +5,7 @@
 PluginInfo = {
   Name = "Prometheus Exporter",
   Version = "1.1",
-  BuildVersion = "1.1.4.3",
+  BuildVersion = "1.2.0.0",
   Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
   Author = "Elliott Balsley",
   Description = "Prometheus Exporter for Qsys Core metrics",
@@ -58,6 +58,15 @@ function GetControls(props)
     ControlUnit = 'Integer',
     Min = 1,
     Max = 65535
+  })
+  
+  table.insert (ctrls, {
+    Name = 'Status',
+    ControlType = 'Indicator',
+    IndicatorType = 'Status',
+    Count = 1,
+    UserPin = true,
+    PinStyle = 'Output',
   })
   
   -- debug mode
@@ -133,12 +142,25 @@ function GetControlLayout(props)
       CornerRadius = 4,
       FontSize = 12
     }
-
-    layout['Port'] = {
-      PrettyName='code',
-      Style='None'
+  
+    -- status display
+    table.insert(graphics, {
+      Type = 'Label',
+      HTextAlign = 'Right',
+      Text = 'Status',
+      Position = { 0, 80 },
+      Size = { 180, 30 },
+      Margin = 5,
+      StrokeWidth = 0,
+      FontSize = 12
+    })
+    layout['Status'] = {
+      Position = { 180, 80 },
+      Size = { 180, 30 },
+      Margin = 5,
+      CornerRadius = 4
     }
-
+  
   end
   return layout, graphics
 end
@@ -162,8 +184,8 @@ if Controls then
   
   function RemoveSocketFromTable(sock)
     for k,v in pairs(Sockets) do
-      if v == sock then 
-        table.remove(Sockets, k) 
+      if v == sock then
+        table.remove(Sockets, k)
         return
       end
     end
@@ -299,11 +321,11 @@ if Controls then
   
     -- Find out if chosen status component is verbose enabled
     Components = Component.GetComponents()
-    for _,v1 in ipairs(Components) do   
+    for _,v1 in ipairs(Components) do
       if v1.Name == Controls['Status Component Name'].String then
         for _,v2 in ipairs(v1.Properties) do
           if v2.Name == 'verbose' then
-            VerboseEnabled =v2.Value
+            VerboseEnabled = v2.Value
           end
         end
       end
@@ -314,6 +336,7 @@ if Controls then
   -- this is required so the sockets don't get garbage collected since there aren't any other references to them in the script
   Sockets = {}
   Server = TcpSocketServer.New()
+  Controls['Status'].Value = 5
   Controls['Status Component Name'].EventHandler = Initialize
   
   Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
@@ -355,12 +378,21 @@ if Controls then
   if #StatusComponents > 0 then
     Controls['Status Component Name'].Choices = StatusComponents
     Controls['Status Component Name'].String = StatusComponents[1]
+    if System.IsEmulating then
+      Controls['Status'].Value = 1
+      Controls['Status'].String = 'Not functional in Emulation mode'
+    else
+      Controls['Status'].Value = 0
+    end
   else
     if DebugFunction then print("No Named Components in Design!") end
+    Controls['Status'].Value = 2
+    Controls['Status'].String = 'Status component not found.  Did you enable script access?'
   end
   
-  if DebugFunction then print(string.format('Listening on HTTP port %d', Controls.Port.Value)) end
-  Server:Listen(Controls.Port.Value) -- This listen port is opened on all network interfaces
-  
-  Initialize()
+  if Controls['Status'].Value == 0 then
+    if DebugFunction then print(string.format('Listening on HTTP port %d', Controls.Port.Value)) end
+    Server:Listen(Controls.Port.Value) -- This listen port is opened on all network interfaces
+    Initialize()
+  end
 end

@@ -10,6 +10,8 @@ Debug output logs the IP address of incoming requests if you are running version
 
 Plugin is based on the [BasicPluginFramework](https://bitbucket.org/qsc-communities/basicpluginframework/src/main/) from QSC and includes the VS Code submodule for easy compiling.
 
+This plugin is not functional is emulation mode.
+
 Example output:
 ```
 # HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing

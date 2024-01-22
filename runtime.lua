@@ -15,8 +15,8 @@ end -- end Dump
 
 function RemoveSocketFromTable(sock)
   for k,v in pairs(Sockets) do
-    if v == sock then 
-      table.remove(Sockets, k) 
+    if v == sock then
+      table.remove(Sockets, k)
       return
     end
   end
@@ -152,11 +152,11 @@ function Initialize()
 
   -- Find out if chosen status component is verbose enabled
   Components = Component.GetComponents()
-  for _,v1 in ipairs(Components) do   
+  for _,v1 in ipairs(Components) do
     if v1.Name == Controls['Status Component Name'].String then
       for _,v2 in ipairs(v1.Properties) do
         if v2.Name == 'verbose' then
-          VerboseEnabled =v2.Value
+          VerboseEnabled = v2.Value
         end
       end
     end
@@ -167,6 +167,7 @@ end
 -- this is required so the sockets don't get garbage collected since there aren't any other references to them in the script
 Sockets = {}
 Server = TcpSocketServer.New()
+Controls['Status'].Value = 5
 Controls['Status Component Name'].EventHandler = Initialize
 
 Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
@@ -208,11 +209,20 @@ if DebugFunction then print('Status Components:', Dump(StatusComponents)) end
 if #StatusComponents > 0 then
   Controls['Status Component Name'].Choices = StatusComponents
   Controls['Status Component Name'].String = StatusComponents[1]
+  if System.IsEmulating then
+    Controls['Status'].Value = 1
+    Controls['Status'].String = 'Not functional in Emulation mode'
+  else
+    Controls['Status'].Value = 0
+  end
 else
   if DebugFunction then print("No Named Components in Design!") end
+  Controls['Status'].Value = 2
+  Controls['Status'].String = 'Status component not found.  Did you enable script access?'
 end
 
-if DebugFunction then print(string.format('Listening on HTTP port %d', Controls.Port.Value)) end
-Server:Listen(Controls.Port.Value) -- This listen port is opened on all network interfaces
-
-Initialize()
+if Controls['Status'].Value == 0 then
+  if DebugFunction then print(string.format('Listening on HTTP port %d', Controls.Port.Value)) end
+  Server:Listen(Controls.Port.Value) -- This listen port is opened on all network interfaces
+  Initialize()
+end

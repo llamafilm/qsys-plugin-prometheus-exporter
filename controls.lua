@@ -12,5 +12,14 @@ table.insert (ctrls, {
   Max = 65535
 })
 
+table.insert (ctrls, {
+  Name = 'Status',
+  ControlType = 'Indicator',
+  IndicatorType = 'Status',
+  Count = 1,
+  UserPin = true,
+  PinStyle = 'Output',
+})
+
 -- debug mode
 -- table.insert(ctrls,{Name = 'code',ControlType = 'Text',UserPin = false,PinStyle = 'Input',Count = 1})
