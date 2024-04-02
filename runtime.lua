@@ -73,19 +73,12 @@ function CreateMetrics()
     body = body .. '# TYPE qsys_compute_process gauge\n'
     body = body .. 'qsys_compute_process ' ..  Status['process.compute.usage'].Value .. '\n'
 
+    -- each core has either block or block512, not both
     local cpu_stats = {
-      'cpu.status.audio.0.statistics',
-      'cpu.status.audio.1.statistics',
-      'cpu.status.audio.2.statistics',
-      'cpu.status.block.0.512.statistics',
-      'cpu.status.block.1.512.statistics',
-      'cpu.status.block.2.512.statistics',
-      'cpu.status.block.0.statistics',
-      'cpu.status.block.1.statistics',
-      'cpu.status.block.2.statistics',
-      'cpu.status.param.0.statistics',
-      'cpu.status.param.1.statistics',
-      'cpu.status.param.2.statistics'
+      'cpu.status.audio.#.statistics',
+      'cpu.status.block.#.512.statistics',
+      'cpu.status.block.#.statistics',
+      'cpu.status.param.#.statistics'
     }
 
     -- build list of available controls so we can skip any that don't exist (i.e. DSP 2)
@@ -95,18 +88,22 @@ function CreateMetrics()
     end
 
     for _,stat in ipairs(cpu_stats) do
-      if controls[stat] ~= nil then
-        local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
-        for line in Status[stat].String:gmatch("[^\r\n]+") do
-          for k,v in line:gmatch("(.*): (.*)") do
-            if k:find('average') then
-              -- skip
-            elseif k:find('current') or k:find('spread') then
-              body = body .. '# TYPE ' .. label .. '_' .. k .. ' gauge\n'
-              body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
-            else
-              body = body .. '# TYPE ' .. label .. '_' .. k .. ' counter\n'
-              body = body .. 'qsys_' .. label ..'_' .. k .. ' ' .. v .. '\n'
+      -- iterate through DSP blocks 0,1,2
+      for i = 0,2,1 do
+        local full_stat = stat:gsub('#', i, 1)
+        if controls[full_stat] ~= nil then
+          local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.#', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
+          for line in Status[full_stat].String:gmatch("[^\r\n]+") do
+            for k,v in line:gmatch("(.*): (.*)") do
+              if k:find('average') then
+                -- skip
+              elseif k:find('current') or k:find('spread') then
+                body = body .. '# TYPE qsys_' .. label .. '_' .. k .. ' gauge\n'
+                body = body .. 'qsys_' .. label ..'_' .. k .. '{' .. 'dsp_core="' .. i .. '"} ' .. v .. '\n'
+              else
+                body = body .. '# TYPE qsys_' .. label .. '_' .. k .. ' counter\n'
+                body = body .. 'qsys_' .. label ..'_' .. k ..  '{' .. 'dsp_core="' .. i .. '"} ' .. v .. '\n'
+              end
             end
           end
         end
