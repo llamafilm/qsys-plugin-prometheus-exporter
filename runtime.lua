@@ -111,6 +111,11 @@ function CreateMetrics()
     end
   end
 
+  -- provides same info as SNMP invDeviceStatusValue
+  for k,v in pairs(Design.GetInventory()) do
+    body = body .. 'qsys_peripheral_status{model="' .. v.Model .. '",name="' .. v.Name .. '",type="' .. v.Type .. '",location="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
+  end
+
   return body
 end
 
