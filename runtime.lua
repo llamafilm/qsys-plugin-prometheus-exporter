@@ -97,11 +97,17 @@ function CreateMetrics()
             for k,v in line:gmatch("(.*): (.*)") do
               if k:find('average') then
                 -- skip
-              elseif k:find('current') or k:find('spread') then
-                body = body .. '# TYPE qsys_' .. label .. '_' .. k .. ' gauge\n'
-                body = body .. 'qsys_' .. label ..'_' .. k .. '{' .. 'dsp_core="' .. i .. '"} ' .. v .. '\n'
               else
-                body = body .. '# TYPE qsys_' .. label .. '_' .. k .. ' counter\n'
+                local metric_name = 'qsys_' .. label .. '_' .. k
+                -- only include TYPE once
+                if not body:find(metric_name) then
+                  -- use the right type: gauge vs counter
+                  if k:find('current') or k:find('spread') then
+                    body = body .. '# TYPE qsys_' .. label .. '_' .. k .. ' gauge\n'
+                  else
+                    body = body .. '# TYPE qsys_' .. label .. '_' .. k .. ' counter\n'
+                  end
+                end
                 body = body .. 'qsys_' .. label ..'_' .. k ..  '{' .. 'dsp_core="' .. i .. '"} ' .. v .. '\n'
               end
             end
@@ -112,6 +118,8 @@ function CreateMetrics()
   end
 
   -- provides same info as SNMP invDeviceStatusValue
+  body = body .. '# HELP qsys_peripheral_status Status value 0-5 for each inventory peripheral\n'
+  body = body .. '# TYPE qsys_peripheral_status gauge\n'
   for k,v in pairs(Design.GetInventory()) do
     body = body .. 'qsys_peripheral_status{model="' .. v.Model .. '",name="' .. v.Name .. '",type="' .. v.Type .. '",location="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
   end
