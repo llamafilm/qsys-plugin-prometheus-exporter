@@ -121,7 +121,7 @@ function CreateMetrics()
   body = body .. '# HELP qsys_peripheral_status Status value 0-5 for each inventory peripheral\n'
   body = body .. '# TYPE qsys_peripheral_status gauge\n'
   for k,v in pairs(Design.GetInventory()) do
-    body = body .. 'qsys_peripheral_status{model="' .. v.Model .. '",name="' .. v.Name .. '",type="' .. v.Type .. '",location="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
+    body = body .. 'qsys_peripheral_status{invDeviceModel="' .. v.Model .. '",invDeviceName="' .. v.Name .. '",invDeviceType="' .. v.Type .. '",invLocation="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
   end
 
   return body
