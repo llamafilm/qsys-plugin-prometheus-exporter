@@ -4,7 +4,7 @@ This plugin provides metrics about the Qsys Core to a Prometheus scraper on HTTP
 You must have a Core Status component in the design with script access enabled.  This plugin should detect the name of that component automatically, and in the unlikely event you have more than one Status component you can select it by name.  The Status component should have verbose mode enabled or else some metrics will be unavailable.
 
 Available metrics may vary depending on Core model.  This has been tested on Nano, 110f, and 510i.
-Older versions of Qsys require _All_ access on the Status component, but "Script" is sufficient on 9.8 and 9.9.
+Older versions of Qsys require _All_ access on the Status component, but _Script_ is sufficient on 9.8 and 9.9.
 
 Debug output logs the IP address of incoming requests if you are running version 9.8 or higher.
 
@@ -14,6 +14,9 @@ This plugin is not functional is emulation mode.
 
 Example output:
 ```
+# HELP qsys_chassis_temperature The current temperature, in Celsius, of the Core chassis.
+# TYPE qsys_chassis_temperature gauge
+qsys_chassis_temperature 38.0
 # HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing
 # TYPE qsys_core_status gauge
 qsys_core_status 0
@@ -44,202 +47,147 @@ qsys_compute_lua 0.76376843452454
 # HELP qsys_compute_process The percentage of CPU usage for DSP, both Category 1 and Category 2 processing
 # TYPE qsys_compute_process gauge
 qsys_compute_process 4.8866696357727
-# TYPE cpu_audio0_current counter
-qsys_cpu_audio0_current 3
-# TYPE cpu_audio0_minimum counter
-qsys_cpu_audio0_minimum 2
-# TYPE cpu_audio0_spread counter
-qsys_cpu_audio0_spread 0
-# TYPE cpu_audio0_maximum counter
-qsys_cpu_audio0_maximum 9
-# TYPE cpu_audio0_lat_current counter
-qsys_cpu_audio0_lat_current 5
-# TYPE cpu_audio0_lat_minimum counter
-qsys_cpu_audio0_lat_minimum 2
-# TYPE cpu_audio0_lat_spread counter
-qsys_cpu_audio0_lat_spread 1
-# TYPE cpu_audio0_lat_maximum counter
-qsys_cpu_audio0_lat_maximum 12
-# TYPE cpu_audio0_periods counter
-qsys_cpu_audio0_periods 45011
-# TYPE cpu_audio0_overruns counter
-qsys_cpu_audio0_overruns 0
-# TYPE cpu_audio0_timeouts counter
-qsys_cpu_audio0_timeouts 0
-# TYPE cpu_audio1_current counter
-qsys_cpu_audio1_current 1
-# TYPE cpu_audio1_minimum counter
-qsys_cpu_audio1_minimum 1
-# TYPE cpu_audio1_spread counter
-qsys_cpu_audio1_spread 0
-# TYPE cpu_audio1_maximum counter
-qsys_cpu_audio1_maximum 7
-# TYPE cpu_audio1_lat_current counter
-qsys_cpu_audio1_lat_current 4
-# TYPE cpu_audio1_lat_minimum counter
-qsys_cpu_audio1_lat_minimum 1
-# TYPE cpu_audio1_lat_spread counter
-qsys_cpu_audio1_lat_spread 1
-# TYPE cpu_audio1_lat_maximum counter
-qsys_cpu_audio1_lat_maximum 11
-# TYPE cpu_audio1_periods counter
-qsys_cpu_audio1_periods 45011
-# TYPE cpu_audio1_overruns counter
-qsys_cpu_audio1_overruns 0
-# TYPE cpu_audio1_timeouts counter
-qsys_cpu_audio1_timeouts 0
-# TYPE cpu_audio2_current counter
-qsys_cpu_audio2_current 9
-# TYPE cpu_audio2_minimum counter
-qsys_cpu_audio2_minimum 8
-# TYPE cpu_audio2_spread counter
-qsys_cpu_audio2_spread 2
-# TYPE cpu_audio2_maximum counter
-qsys_cpu_audio2_maximum 45
-# TYPE cpu_audio2_lat_current counter
-qsys_cpu_audio2_lat_current 4
-# TYPE cpu_audio2_lat_minimum counter
-qsys_cpu_audio2_lat_minimum 1
-# TYPE cpu_audio2_lat_spread counter
-qsys_cpu_audio2_lat_spread 1
-# TYPE cpu_audio2_lat_maximum counter
-qsys_cpu_audio2_lat_maximum 16
-# TYPE cpu_audio2_periods counter
-qsys_cpu_audio2_periods 45011
-# TYPE cpu_audio2_overruns counter
-qsys_cpu_audio2_overruns 0
-# TYPE cpu_audio2_timeouts counter
-qsys_cpu_audio2_timeouts 0
-# TYPE cpu_block0_current counter
-qsys_cpu_block0_current 0
-# TYPE cpu_block0_minimum counter
-qsys_cpu_block0_minimum 0
-# TYPE cpu_block0_spread counter
-qsys_cpu_block0_spread 0
-# TYPE cpu_block0_maximum counter
-qsys_cpu_block0_maximum 0
-# TYPE cpu_block0_lat_current counter
-qsys_cpu_block0_lat_current 0
-# TYPE cpu_block0_lat_minimum counter
-qsys_cpu_block0_lat_minimum 0
-# TYPE cpu_block0_lat_spread counter
-qsys_cpu_block0_lat_spread 0
-# TYPE cpu_block0_lat_maximum counter
-qsys_cpu_block0_lat_maximum 0
-# TYPE cpu_block0_periods counter
-qsys_cpu_block0_periods 0
-# TYPE cpu_block0_overruns counter
-qsys_cpu_block0_overruns 0
-# TYPE cpu_block0_timeouts counter
-qsys_cpu_block0_timeouts 0
-# TYPE cpu_block1_current counter
-qsys_cpu_block1_current 0
-# TYPE cpu_block1_minimum counter
-qsys_cpu_block1_minimum 0
-# TYPE cpu_block1_spread counter
-qsys_cpu_block1_spread 0
-# TYPE cpu_block1_maximum counter
-qsys_cpu_block1_maximum 0
-# TYPE cpu_block1_lat_current counter
-qsys_cpu_block1_lat_current 0
-# TYPE cpu_block1_lat_minimum counter
-qsys_cpu_block1_lat_minimum 0
-# TYPE cpu_block1_lat_spread counter
-qsys_cpu_block1_lat_spread 0
-# TYPE cpu_block1_lat_maximum counter
-qsys_cpu_block1_lat_maximum 0
-# TYPE cpu_block1_periods counter
-qsys_cpu_block1_periods 0
-# TYPE cpu_block1_overruns counter
-qsys_cpu_block1_overruns 0
-# TYPE cpu_block1_timeouts counter
-qsys_cpu_block1_timeouts 0
-# TYPE cpu_block2_current counter
-qsys_cpu_block2_current 0
-# TYPE cpu_block2_minimum counter
-qsys_cpu_block2_minimum 0
-# TYPE cpu_block2_spread counter
-qsys_cpu_block2_spread 0
-# TYPE cpu_block2_maximum counter
-qsys_cpu_block2_maximum 0
-# TYPE cpu_block2_lat_current counter
-qsys_cpu_block2_lat_current 0
-# TYPE cpu_block2_lat_minimum counter
-qsys_cpu_block2_lat_minimum 0
-# TYPE cpu_block2_lat_spread counter
-qsys_cpu_block2_lat_spread 0
-# TYPE cpu_block2_lat_maximum counter
-qsys_cpu_block2_lat_maximum 0
-# TYPE cpu_block2_periods counter
-qsys_cpu_block2_periods 0
-# TYPE cpu_block2_overruns counter
-qsys_cpu_block2_overruns 0
-# TYPE cpu_block2_timeouts counter
-qsys_cpu_block2_timeouts 0
-# TYPE cpu_param0_current counter
-qsys_cpu_param0_current 2
-# TYPE cpu_param0_minimum counter
-qsys_cpu_param0_minimum 2
-# TYPE cpu_param0_spread counter
-qsys_cpu_param0_spread 0
-# TYPE cpu_param0_maximum counter
-qsys_cpu_param0_maximum 3
-# TYPE cpu_param0_lat_current counter
-qsys_cpu_param0_lat_current 15
-# TYPE cpu_param0_lat_minimum counter
-qsys_cpu_param0_lat_minimum 15
-# TYPE cpu_param0_lat_spread counter
-qsys_cpu_param0_lat_spread 3
-# TYPE cpu_param0_lat_maximum counter
-qsys_cpu_param0_lat_maximum 26
-# TYPE cpu_param0_periods counter
-qsys_cpu_param0_periods 450
-# TYPE cpu_param0_overruns counter
-qsys_cpu_param0_overruns 0
-# TYPE cpu_param0_timeouts counter
-qsys_cpu_param0_timeouts 0
-# TYPE cpu_param1_current counter
-qsys_cpu_param1_current 1
-# TYPE cpu_param1_minimum counter
-qsys_cpu_param1_minimum 1
-# TYPE cpu_param1_spread counter
-qsys_cpu_param1_spread 0
-# TYPE cpu_param1_maximum counter
-qsys_cpu_param1_maximum 1
-# TYPE cpu_param1_lat_current counter
-qsys_cpu_param1_lat_current 13
-# TYPE cpu_param1_lat_minimum counter
-qsys_cpu_param1_lat_minimum 13
-# TYPE cpu_param1_lat_spread counter
-qsys_cpu_param1_lat_spread 4
-# TYPE cpu_param1_lat_maximum counter
-qsys_cpu_param1_lat_maximum 26
-# TYPE cpu_param1_periods counter
-qsys_cpu_param1_periods 450
-# TYPE cpu_param1_overruns counter
-qsys_cpu_param1_overruns 0
-# TYPE cpu_param1_timeouts counter
-qsys_cpu_param1_timeouts 0
-# TYPE cpu_param1_current counter
-qsys_cpu_param1_current 1
-# TYPE cpu_param1_minimum counter
-qsys_cpu_param1_minimum 1
-# TYPE cpu_param1_spread counter
-qsys_cpu_param1_spread 0
-# TYPE cpu_param1_maximum counter
-qsys_cpu_param1_maximum 1
-# TYPE cpu_param1_lat_current counter
-qsys_cpu_param1_lat_current 13
-# TYPE cpu_param1_lat_minimum counter
-qsys_cpu_param1_lat_minimum 13
-# TYPE cpu_param1_lat_spread counter
-qsys_cpu_param1_lat_spread 4
-# TYPE cpu_param1_lat_maximum counter
-qsys_cpu_param1_lat_maximum 26
-# TYPE cpu_param1_periods counter
-qsys_cpu_param1_periods 450
-# TYPE cpu_param1_overruns counter
-qsys_cpu_param1_overruns 0
-# TYPE cpu_param1_timeouts counter
-qsys_cpu_param1_timeouts 0
+# TYPE qsys_dsp_audio_current gauge
+qsys_dsp_audio_current{dsp_core="0"} 77
+# TYPE qsys_dsp_audio_minimum counter
+qsys_dsp_audio_minimum{dsp_core="0"} 74
+# TYPE qsys_dsp_audio_spread gauge
+qsys_dsp_audio_spread{dsp_core="0"} 1
+# TYPE qsys_dsp_audio_maximum counter
+qsys_dsp_audio_maximum{dsp_core="0"} 94
+# TYPE qsys_dsp_audio_lat_current gauge
+qsys_dsp_audio_lat_current{dsp_core="0"} 4
+# TYPE qsys_dsp_audio_lat_minimum counter
+qsys_dsp_audio_lat_minimum{dsp_core="0"} 0
+# TYPE qsys_dsp_audio_lat_spread gauge
+qsys_dsp_audio_lat_spread{dsp_core="0"} 0
+# TYPE qsys_dsp_audio_lat_maximum counter
+qsys_dsp_audio_lat_maximum{dsp_core="0"} 14
+# TYPE qsys_dsp_audio_periods counter
+qsys_dsp_audio_periods{dsp_core="0"} 1208994
+# TYPE qsys_dsp_audio_overruns counter
+qsys_dsp_audio_overruns{dsp_core="0"} 0
+# TYPE qsys_dsp_audio_timeouts counter
+qsys_dsp_audio_timeouts{dsp_core="0"} 0
+qsys_dsp_audio_current{dsp_core="1"} 78
+qsys_dsp_audio_minimum{dsp_core="1"} 75
+qsys_dsp_audio_spread{dsp_core="1"} 1
+qsys_dsp_audio_maximum{dsp_core="1"} 96
+qsys_dsp_audio_lat_current{dsp_core="1"} 4
+qsys_dsp_audio_lat_minimum{dsp_core="1"} 1
+qsys_dsp_audio_lat_spread{dsp_core="1"} 1
+qsys_dsp_audio_lat_maximum{dsp_core="1"} 13
+qsys_dsp_audio_periods{dsp_core="1"} 1208993
+qsys_dsp_audio_overruns{dsp_core="1"} 0
+qsys_dsp_audio_timeouts{dsp_core="1"} 0
+qsys_dsp_audio_current{dsp_core="2"} 24
+qsys_dsp_audio_minimum{dsp_core="2"} 15
+qsys_dsp_audio_spread{dsp_core="2"} 6
+qsys_dsp_audio_maximum{dsp_core="2"} 74
+qsys_dsp_audio_lat_current{dsp_core="2"} 4
+qsys_dsp_audio_lat_minimum{dsp_core="2"} 1
+qsys_dsp_audio_lat_spread{dsp_core="2"} 5
+qsys_dsp_audio_lat_maximum{dsp_core="2"} 47
+qsys_dsp_audio_periods{dsp_core="2"} 1208993
+qsys_dsp_audio_overruns{dsp_core="2"} 0
+qsys_dsp_audio_timeouts{dsp_core="2"} 0
+# TYPE qsys_dsp_block_current gauge
+qsys_dsp_block_current{dsp_core="0"} 0
+# TYPE qsys_dsp_block_minimum counter
+qsys_dsp_block_minimum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_spread gauge
+qsys_dsp_block_spread{dsp_core="0"} 0
+# TYPE qsys_dsp_block_maximum counter
+qsys_dsp_block_maximum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_lat_current gauge
+qsys_dsp_block_lat_current{dsp_core="0"} 0
+# TYPE qsys_dsp_block_lat_minimum counter
+qsys_dsp_block_lat_minimum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_lat_spread gauge
+qsys_dsp_block_lat_spread{dsp_core="0"} 0
+# TYPE qsys_dsp_block_lat_maximum counter
+qsys_dsp_block_lat_maximum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_periods counter
+qsys_dsp_block_periods{dsp_core="0"} 0
+# TYPE qsys_dsp_block_overruns counter
+qsys_dsp_block_overruns{dsp_core="0"} 0
+# TYPE qsys_dsp_block_timeouts counter
+qsys_dsp_block_timeouts{dsp_core="0"} 0
+qsys_dsp_block_current{dsp_core="1"} 0
+qsys_dsp_block_minimum{dsp_core="1"} 0
+qsys_dsp_block_spread{dsp_core="1"} 0
+qsys_dsp_block_maximum{dsp_core="1"} 0
+qsys_dsp_block_lat_current{dsp_core="1"} 0
+qsys_dsp_block_lat_minimum{dsp_core="1"} 0
+qsys_dsp_block_lat_spread{dsp_core="1"} 0
+qsys_dsp_block_lat_maximum{dsp_core="1"} 0
+qsys_dsp_block_periods{dsp_core="1"} 0
+qsys_dsp_block_overruns{dsp_core="1"} 0
+qsys_dsp_block_timeouts{dsp_core="1"} 0
+qsys_dsp_block_current{dsp_core="2"} 0
+qsys_dsp_block_minimum{dsp_core="2"} 0
+qsys_dsp_block_spread{dsp_core="2"} 0
+qsys_dsp_block_maximum{dsp_core="2"} 0
+qsys_dsp_block_lat_current{dsp_core="2"} 0
+qsys_dsp_block_lat_minimum{dsp_core="2"} 0
+qsys_dsp_block_lat_spread{dsp_core="2"} 0
+qsys_dsp_block_lat_maximum{dsp_core="2"} 0
+qsys_dsp_block_periods{dsp_core="2"} 0
+qsys_dsp_block_overruns{dsp_core="2"} 0
+qsys_dsp_block_timeouts{dsp_core="2"} 0
+# TYPE qsys_dsp_param_current gauge
+qsys_dsp_param_current{dsp_core="0"} 96
+# TYPE qsys_dsp_param_minimum counter
+qsys_dsp_param_minimum{dsp_core="0"} 95
+# TYPE qsys_dsp_param_spread gauge
+qsys_dsp_param_spread{dsp_core="0"} 1
+# TYPE qsys_dsp_param_maximum counter
+qsys_dsp_param_maximum{dsp_core="0"} 110
+# TYPE qsys_dsp_param_lat_current gauge
+qsys_dsp_param_lat_current{dsp_core="0"} 108
+# TYPE qsys_dsp_param_lat_minimum counter
+qsys_dsp_param_lat_minimum{dsp_core="0"} 103
+# TYPE qsys_dsp_param_lat_spread gauge
+qsys_dsp_param_lat_spread{dsp_core="0"} 1
+# TYPE qsys_dsp_param_lat_maximum counter
+qsys_dsp_param_lat_maximum{dsp_core="0"} 121
+# TYPE qsys_dsp_param_periods counter
+qsys_dsp_param_periods{dsp_core="0"} 12090
+# TYPE qsys_dsp_param_overruns counter
+qsys_dsp_param_overruns{dsp_core="0"} 0
+# TYPE qsys_dsp_param_timeouts counter
+qsys_dsp_param_timeouts{dsp_core="0"} 0
+qsys_dsp_param_current{dsp_core="1"} 90
+qsys_dsp_param_minimum{dsp_core="1"} 88
+qsys_dsp_param_spread{dsp_core="1"} 1
+qsys_dsp_param_maximum{dsp_core="1"} 105
+qsys_dsp_param_lat_current{dsp_core="1"} 107
+qsys_dsp_param_lat_minimum{dsp_core="1"} 103
+qsys_dsp_param_lat_spread{dsp_core="1"} 1
+qsys_dsp_param_lat_maximum{dsp_core="1"} 121
+qsys_dsp_param_periods{dsp_core="1"} 12090
+qsys_dsp_param_overruns{dsp_core="1"} 0
+qsys_dsp_param_timeouts{dsp_core="1"} 0
+qsys_dsp_param_current{dsp_core="2"} 6
+qsys_dsp_param_minimum{dsp_core="2"} 5
+qsys_dsp_param_spread{dsp_core="2"} 1
+qsys_dsp_param_maximum{dsp_core="2"} 81
+qsys_dsp_param_lat_current{dsp_core="2"} 47
+qsys_dsp_param_lat_minimum{dsp_core="2"} 44
+qsys_dsp_param_lat_spread{dsp_core="2"} 18
+qsys_dsp_param_lat_maximum{dsp_core="2"} 128
+qsys_dsp_param_periods{dsp_core="2"} 12090
+qsys_dsp_param_overruns{dsp_core="2"} 0
+qsys_dsp_param_timeouts{dsp_core="2"} 0
+# HELP qsys_peripheral_status Status value 0-5 for each inventory peripheral
+# TYPE qsys_peripheral_status gauge
+qsys_peripheral_status{invDeviceModel="Core Nano",invDeviceName="Core-Nano-Jar-215-Test",invDeviceType="Processor",invLocation="The Jar"} 0
+qsys_peripheral_status{invDeviceModel="Software Dante RX",invDeviceName="Dante-RX-1",invDeviceType="Streaming I/O",invLocation="Default Location"} 0
+qsys_peripheral_status{invDeviceModel="Software Dante TX",invDeviceName="Software-Dante-TX-1",invDeviceType="Streaming I/O",invLocation="Default Location"} 0
+qsys_peripheral_status{invDeviceModel="QIO-GP8x8",invDeviceName="qio-gp-jar-test",invDeviceType="Control I/O",invLocation="Default Location"} 4
+qsys_peripheral_status{invDeviceModel="QIO-IR1x4",invDeviceName="qio-ir1x4-jar-test",invDeviceType="Control I/O",invLocation="Default Location"} 3
+qsys_peripheral_status{invDeviceModel="AES67 Receiver",invDeviceName="AES67-RX-1",invDeviceType="Streaming I/O",invLocation="IP Audio"} 1
+qsys_peripheral_status{invDeviceModel="AES67 Receiver",invDeviceName="AES67-RX-2",invDeviceType="Streaming I/O",invLocation="IP Audio"} 1
+qsys_peripheral_status{invDeviceModel="TSC-80-G2",invDeviceName="TSC80-271e",invDeviceType="Control Interface",invLocation="TSC"} 3
+qsys_peripheral_status{invDeviceModel="I/O-8 Flex",invDeviceName="tuning-io-test",invDeviceType="Audio I/O",invLocation="Default Location"} 3
 ```
