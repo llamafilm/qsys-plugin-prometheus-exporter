@@ -147,8 +147,8 @@ function CreateMetrics()
       if DebugFunction then print('Skipping metric ' .. i .. ' because its name is blank.') end
     else
       -- Prometheus metric names may contain ASCII letters, digits, underscores, and colons.
-      local cleaned_name = metric_name:gsub('[^a-zA-Z_:]', '_')
-      
+      local cleaned_name = metric_name:gsub('[^a-zA-Z0-9_:]', '_')
+
       -- make sure we don't duplicate another metric name
       if body:match(cleaned_name) then
         Controls['Status'].Value = 2
