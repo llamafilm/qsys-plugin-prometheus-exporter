@@ -132,7 +132,7 @@ function CreateMetrics()
 
   -- include custom metrics if enabled in Properties
   local custom_metrics_count = Properties['Custom Metrics'].Value
-  print("We have " .. custom_metrics_count .. " custom metrics.")
+  if DebugFunction then print("# We have " .. custom_metrics_count .. " custom metrics.") end
   for i=1,custom_metrics_count do
     local metric_name, metric_value
     -- Control names are different if there's only 1
@@ -166,6 +166,14 @@ end
 function SocketHandler(sock, event) -- the arguments for this EventHandler are documented in the EventHandler definition of TcpSocket Properties
   if event == TcpSocket.Events.Data then
     local request = sock:ReadLine(TcpSocket.EOL.Custom, '\r\n\r\n')
+
+    if not request then
+      print('Error parsing request, did you use HTTPS by mistake?')
+      Controls['Status'].Value = 2
+      Controls['Status'].String = "Invalid HTTP request"
+      return
+    end
+
     local url, protocol = request:match('^[^ ]+ ([^ \r\n]+) (HTTP[0-9/.]+)')
     url = url:lower()
     if DebugRx then print('# Received ' .. protocol .. ' request ' .. url) end
@@ -181,11 +189,14 @@ function SocketHandler(sock, event) -- the arguments for this EventHandler are d
       local payload = protocol .. ' 404 Not Found\r\nDate: ' .. os.date() .. '\r\nContent-Length: 0\r\n\r\n'
       sock:Write(payload)
     end
+
+    Controls['Status'].Value = 0
+
   elseif event == TcpSocket.Events.Closed or
          event == TcpSocket.Events.Error or
          event == TcpSocket.Events.Timeout then
     -- remove reference of socket from table so it's available for garbage collection
-    if DebugRx then print( "TCP Socket Event: "..event ) end
+    if DebugRx then print( "# TCP Socket Event: "..event ) end
     RemoveSocketFromTable(sock)
   else
     print('something else:', event)
@@ -219,9 +230,9 @@ Controls['Status Component Name'].EventHandler = Initialize
 Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
   SocketInstance.ReadTimeout = 2
   if tonumber(System.MajorVersion) >= 9 and tonumber(System.MinorVersion) >= 8 then
-    if DebugRx then print( "Got connection from", SocketInstance.PeerAddress ) end
+    if DebugRx then print( "# Got connection from", SocketInstance.PeerAddress ) end
   else
-    if DebugRx then print( "Got connection") end
+    if DebugRx then print( "# Got connection") end
   end
   table.insert(Sockets, SocketInstance)
   SocketInstance.EventHandler = SocketHandler
