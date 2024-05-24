@@ -89,8 +89,8 @@ if CurrentPage == 'Control' then
       HTextAlign = "Center",
       Color = {0, 0, 0},
       FontSize = 12,
-      Position = {50, 120},
-      Size = {300, 20},
+      Position = {10, 120},
+      Size = {380, 20},
     })
 
     -- if there is only 1 Control then the  name is different
@@ -104,6 +104,14 @@ if CurrentPage == 'Control' then
         Margin = 1,
         FontSize = 12
       })
+      layout['Metric Type'] = {
+        Style = 'Button',
+        Legend = '%',
+        Position = { 360, 120 + 22 },
+        Size = { 22,22 },
+        CornerRadius = 4,
+        FontSize = 12
+      }
       layout['Metric Label'] = {
         Style = 'Text',
         Position = { 185, 120 + 22 },
@@ -124,6 +132,14 @@ if CurrentPage == 'Control' then
           Margin = 1,
           FontSize = 12
         })
+        layout['Metric Type ' .. i] = {
+          Style = 'Button',
+          Legend = '%',
+          Position = { 360, 120 + 22 * i },
+          Size = { 24,22 },
+          CornerRadius = 4,
+          FontSize = 12
+        }
         layout['Metric Label ' .. i] = {
           Style = 'Text',
           Position = { 185, 120 + 22 * i },

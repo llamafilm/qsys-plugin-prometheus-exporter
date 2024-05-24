@@ -8,7 +8,7 @@ Older versions of Qsys require _All_ access on the Status component, but _Script
 
 Debug output logs the IP address of incoming requests if you are running version 9.8 or higher.
 
-Up to 20 additional metrics can be included by setting the `Custom Metrics` property.  This will expose input pins which can be wired to any numeric value.  If you don't enter labels, they will be omitted.
+Up to 20 additional metrics can be included by setting the `Custom Metrics` property.  This will expose input pins which can be wired to any numeric value.  If you don't enter labels, they will be omitted.  For percent type values, toggle the '%' button on; for other number types, leave it off.
 
 ![screenshot](https://github.com/llamafilm/qsys-plugin-prometheus-exporter/assets/3991046/dac7b904-6378-4b21-a1d1-37e8717b1356)
 

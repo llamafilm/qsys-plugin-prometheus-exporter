@@ -138,10 +138,19 @@ function CreateMetrics()
     -- Control names are different if there's only 1
     if custom_metrics_count == 1 then
       metric_name  = Controls['Metric Label'].String
-      metric_value = Controls['Metric'].Value
+      -- Percent type controls are measured as relative numbers
+      if Controls['Metric Type'].Boolean then
+        metric_value = Controls['Metric'].Position
+      else
+        metric_value = Controls['Metric'].Value
+      end
     else
       metric_name  = Controls['Metric Label'][i].String
-      metric_value = Controls['Metric'][i].Value
+      if Controls['Metric Type'][i].Boolean then
+        metric_value = Controls['Metric'][i].Position
+      else
+        metric_value = Controls['Metric'][i].Value
+      end
     end
     if metric_name == '' then
       if DebugFunction then print('Skipping metric ' .. i .. ' because its name is blank.') end

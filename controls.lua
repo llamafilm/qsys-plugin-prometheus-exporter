@@ -39,3 +39,12 @@ table.insert (ctrls, {
   Count = custom_metrics_count,
   PinStyle = "None",
 })
+
+table.insert (ctrls, {
+  Name = "Metric Type",
+  ControlType = "Button",
+  ButtonType = "Toggle",
+  DefaultValue = false,
+  Count = custom_metrics_count,
+  PinStyle = "None",
+})
