@@ -5,7 +5,7 @@
 PluginInfo = {
   Name = "Prometheus Exporter",
   Version = "1.4",
-  BuildVersion = "1.4.1.0",
+  BuildVersion = "1.4.2.0",
   Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
   Author = "Elliott Balsley",
   Description = "Prometheus Exporter for Qsys Core metrics",
@@ -92,6 +92,15 @@ function GetControls(props)
   table.insert (ctrls, {
     Name = "Metric Label",
     ControlType = "Text",
+    Count = custom_metrics_count,
+    PinStyle = "None",
+  })
+  
+  table.insert (ctrls, {
+    Name = "Metric Type",
+    ControlType = "Button",
+    ButtonType = "Toggle",
+    DefaultValue = false,
     Count = custom_metrics_count,
     PinStyle = "None",
   })
@@ -197,8 +206,8 @@ function GetControlLayout(props)
         HTextAlign = "Center",
         Color = {0, 0, 0},
         FontSize = 12,
-        Position = {50, 120},
-        Size = {300, 20},
+        Position = {10, 120},
+        Size = {380, 20},
       })
   
       -- if there is only 1 Control then the  name is different
@@ -208,14 +217,22 @@ function GetControlLayout(props)
           HTextAlign = 'Right',
           Text = 'Metric 1',
           Position = { 0, 120 + 22 },
-          Size = { 180,22 },
+          Size = { 100,22 },
           Margin = 1,
           FontSize = 12
         })
+        layout['Metric Type'] = {
+          Style = 'Button',
+          Legend = '%',
+          Position = { 360, 120 + 22 },
+          Size = { 22,22 },
+          CornerRadius = 4,
+          FontSize = 12
+        }
         layout['Metric Label'] = {
           Style = 'Text',
-          Position = { 185, 120 + 22 },
-          Size = { 170,22 },
+          Position = { 105, 120 + 22 },
+          Size = { 250,22 },
           Margin = 1,
           CornerRadius = 4,
           FontSize = 12
@@ -228,14 +245,22 @@ function GetControlLayout(props)
             HTextAlign = 'Right',
             Text = 'Metric ' .. i,
             Position = { 0, 120 + 22 * i },
-            Size = { 180,22 },
+            Size = { 100,22 },
             Margin = 1,
             FontSize = 12
           })
+          layout['Metric Type ' .. i] = {
+            Style = 'Button',
+            Legend = '%',
+            Position = { 360, 120 + 22 * i },
+            Size = { 24,22 },
+            CornerRadius = 4,
+            FontSize = 12
+          }
           layout['Metric Label ' .. i] = {
             Style = 'Text',
-            Position = { 185, 120 + 22 * i },
-            Size = { 170,22 },
+            Position = { 105, 120 + 22 * i },
+            Size = { 250,22 },
             Margin = 1,
             CornerRadius = 4,
             FontSize = 12
@@ -394,17 +419,26 @@ if Controls then
       -- Control names are different if there's only 1
       if custom_metrics_count == 1 then
         metric_name  = Controls['Metric Label'].String
-        metric_value = Controls['Metric'].Value
+        -- Percent type controls are measured as relative numbers
+        if Controls['Metric Type'].Boolean then
+          metric_value = Controls['Metric'].Position
+        else
+          metric_value = Controls['Metric'].Value
+        end
       else
         metric_name  = Controls['Metric Label'][i].String
-        metric_value = Controls['Metric'][i].Value
+        if Controls['Metric Type'][i].Boolean then
+          metric_value = Controls['Metric'][i].Position
+        else
+          metric_value = Controls['Metric'][i].Value
+        end
       end
       if metric_name == '' then
         if DebugFunction then print('Skipping metric ' .. i .. ' because its name is blank.') end
       else
         -- Prometheus metric names may contain ASCII letters, digits, underscores, and colons.
-        local cleaned_name = metric_name:gsub('[^a-zA-Z_:]', '_')
-        
+        local cleaned_name = metric_name:gsub('[^a-zA-Z0-9_:]', '_')
+  
         -- make sure we don't duplicate another metric name
         if body:match(cleaned_name) then
           Controls['Status'].Value = 2

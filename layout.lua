@@ -100,7 +100,7 @@ if CurrentPage == 'Control' then
         HTextAlign = 'Right',
         Text = 'Metric 1',
         Position = { 0, 120 + 22 },
-        Size = { 180,22 },
+        Size = { 100,22 },
         Margin = 1,
         FontSize = 12
       })
@@ -114,8 +114,8 @@ if CurrentPage == 'Control' then
       }
       layout['Metric Label'] = {
         Style = 'Text',
-        Position = { 185, 120 + 22 },
-        Size = { 170,22 },
+        Position = { 105, 120 + 22 },
+        Size = { 250,22 },
         Margin = 1,
         CornerRadius = 4,
         FontSize = 12
@@ -128,7 +128,7 @@ if CurrentPage == 'Control' then
           HTextAlign = 'Right',
           Text = 'Metric ' .. i,
           Position = { 0, 120 + 22 * i },
-          Size = { 180,22 },
+          Size = { 100,22 },
           Margin = 1,
           FontSize = 12
         })
@@ -142,8 +142,8 @@ if CurrentPage == 'Control' then
         }
         layout['Metric Label ' .. i] = {
           Style = 'Text',
-          Position = { 185, 120 + 22 * i },
-          Size = { 170,22 },
+          Position = { 105, 120 + 22 * i },
+          Size = { 250,22 },
           Margin = 1,
           CornerRadius = 4,
           FontSize = 12
