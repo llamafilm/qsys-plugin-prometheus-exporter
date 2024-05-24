@@ -1,6 +1,3 @@
--- debug mode
--- layout['code']={PrettyName='code',Style='None'}
-
 local custom_metrics_count = props['Custom Metrics'].Value
 
 local CurrentPage = PageNames[props['page_index'].Value]

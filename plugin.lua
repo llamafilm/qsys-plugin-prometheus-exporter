@@ -33,6 +33,10 @@ end
 function GetControls(props)
   local ctrls = {}
   --[[ #include "controls.lua" ]]
+
+  -- uncomment for debug mode
+  -- table.insert(ctrls,{Name = 'code',ControlType = 'Text',UserPin = false,PinStyle = 'Input',Count = 1})
+
   return ctrls
 end
 
@@ -41,6 +45,10 @@ function GetControlLayout(props)
   local layout = {}
   local graphics = {}
   --[[ #include "layout.lua" ]]
+
+  -- uncomment for debug mode
+  -- layout['code']={PrettyName='code',Style='None'}
+
   return layout, graphics
 end
 

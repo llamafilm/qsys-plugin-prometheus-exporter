@@ -39,6 +39,3 @@ table.insert (ctrls, {
   Count = custom_metrics_count,
   PinStyle = "None",
 })
-
--- debug mode
--- table.insert(ctrls,{Name = 'code',ControlType = 'Text',UserPin = false,PinStyle = 'Input',Count = 1})
