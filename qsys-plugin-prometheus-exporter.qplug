@@ -4,8 +4,8 @@
 -- Information block for the plugin
 PluginInfo = {
   Name = "Prometheus Exporter",
-  Version = "1.3",
-  BuildVersion = "1.3.1.0",
+  Version = "1.4",
+  BuildVersion = "1.4.0.0",
   Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
   Author = "Elliott Balsley",
   Description = "Prometheus Exporter for Qsys Core metrics",
@@ -32,6 +32,14 @@ function GetProperties()
     Choices = {'None', 'Tx/Rx', 'Tx', 'Rx', 'Function Calls', 'All'},
     Value = 'None'
   })
+  
+  table.insert(props, {
+    Name = 'Custom Metrics',
+    Type = 'integer',
+    Min = 0,
+    Max = 20,
+    Value = 0
+  })
   return props
 end
 
@@ -46,6 +54,8 @@ end
 -- Defines the Controls used within the plugin
 function GetControls(props)
   local ctrls = {}
+  local custom_metrics_count = props['Custom Metrics'].Value
+  
   table.insert (ctrls, {
     Name = 'Status Component Name',
     ControlType = 'Text'
@@ -69,6 +79,23 @@ function GetControls(props)
     PinStyle = 'Output',
   })
   
+  table.insert (ctrls, {
+    Name = "Metric",
+    ControlType = "Knob",
+    ControlUnit = "Float",
+    Min = -1000000000,
+    Max = 1000000000,
+    Count = custom_metrics_count,
+    PinStyle = "Input",
+  })
+  
+  table.insert (ctrls, {
+    Name = "Metric Label",
+    ControlType = "Text",
+    Count = custom_metrics_count,
+    PinStyle = "None",
+  })
+  
   -- debug mode
   -- table.insert(ctrls,{Name = 'code',ControlType = 'Text',UserPin = false,PinStyle = 'Input',Count = 1})
   return ctrls
@@ -80,6 +107,8 @@ function GetControlLayout(props)
   local graphics = {}
   -- debug mode
   -- layout['code']={PrettyName='code',Style='None'}
+  
+  local custom_metrics_count = props['Custom Metrics'].Value
   
   local CurrentPage = PageNames[props['page_index'].Value]
   if CurrentPage == 'Control' then
@@ -117,7 +146,7 @@ function GetControlLayout(props)
     -- background box
     table.insert(graphics, {
       Type = 'GroupBox',
-      Size = { 400, 200 },
+      Size = { 400, 110 + 22 * custom_metrics_count },
       Position = { 0, 40},
       Fill = { 220, 220, 220 },
       StrokeWidth = 0
@@ -161,12 +190,74 @@ function GetControlLayout(props)
       CornerRadius = 4
     }
   
+    -- add some number of Custom Metrics (defaults to 0)
+    if custom_metrics_count > 0 then
+      table.insert(graphics,
+      {
+        Type = "Header",
+        Text = "Custom Metrics Labels",
+        HTextAlign = "Center",
+        Color = {0, 0, 0},
+        FontSize = 12,
+        Position = {50, 120},
+        Size = {300, 20},
+      })
+  
+      -- if there is only 1 Control then the  name is different
+      if custom_metrics_count == 1 then
+        table.insert(graphics, {
+          Type = 'Label',
+          HTextAlign = 'Right',
+          Text = 'Metric 1',
+          Position = { 0, 120 + 22 },
+          Size = { 180,22 },
+          Margin = 1,
+          FontSize = 12
+        })
+        layout['Metric Label'] = {
+          Style = 'Text',
+          Position = { 185, 120 + 22 },
+          Size = { 170,22 },
+          Margin = 1,
+          CornerRadius = 4,
+          FontSize = 12
+        }
+        layout['Metric'] = {Style = 'None'}
+      else
+        for i=1,custom_metrics_count do
+          table.insert(graphics, {
+            Type = 'Label',
+            HTextAlign = 'Right',
+            Text = 'Metric ' .. i,
+            Position = { 0, 120 + 22 * i },
+            Size = { 180,22 },
+            Margin = 1,
+            FontSize = 12
+          })
+          layout['Metric Label ' .. i] = {
+            Style = 'Text',
+            Position = { 185, 120 + 22 * i },
+            Size = { 170,22 },
+            Margin = 1,
+            CornerRadius = 4,
+            FontSize = 12
+          }
+          layout['Metric ' .. i] = {Style = 'None'}
+        end
+      end
+    end
   end
   return layout, graphics
 end
 
 --Start event based logic
 if Controls then
+  if not Properties then
+    -- debug mode
+    print('Exiting because we are not a plugin')
+    return
+  end
+  
   -- helper function for debugging
   function Dump(o, indent)
     if indent == nil then indent = 0 end
@@ -293,6 +384,36 @@ if Controls then
       body = body .. 'qsys_peripheral_status{invDeviceModel="' .. v.Model .. '",invDeviceName="' .. v.Name .. '",invDeviceType="' .. v.Type .. '",invLocation="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
     end
   
+    -- include custom metrics if enabled in Properties
+    local custom_metrics_count = Properties['Custom Metrics'].Value
+    print("We have " .. custom_metrics_count .. " custom metrics.")
+    for i=1,custom_metrics_count do
+      local metric_name, metric_value
+      -- Control names are different if there's only 1
+      if custom_metrics_count == 1 then
+        metric_name  = Controls['Metric Label'].String
+        metric_value = Controls['Metric'].Value
+      else
+        metric_name  = Controls['Metric Label'][i].String
+        metric_value = Controls['Metric'][i].Value
+      end
+      if metric_name == '' then
+        if DebugFunction then print('Skipping metric ' .. i .. ' because its name is blank.') end
+      else
+        -- Prometheus metric names may contain ASCII letters, digits, underscores, and colons.
+        local cleaned_name = metric_name:gsub('[^a-zA-Z_:]', '_')
+        
+        -- make sure we don't duplicate another metric name
+        if body:match(cleaned_name) then
+          Controls['Status'].Value = 2
+          Controls['Status'].String = 'duplicate name: ' .. cleaned_name
+          return "Error! duplicate metric: " .. cleaned_name
+        else
+          body = body .. 'qsys_' .. cleaned_name .. ' ' .. metric_value .. '\n'
+        end
+      end
+    end
+    Controls['Status'].Value = 0
     return body
   end
   

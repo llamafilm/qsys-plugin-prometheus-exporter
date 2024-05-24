@@ -1,3 +1,9 @@
+if not Properties then
+  -- debug mode
+  print('Exiting because we are not a plugin')
+  return
+end
+
 -- helper function for debugging
 function Dump(o, indent)
   if indent == nil then indent = 0 end
@@ -124,6 +130,36 @@ function CreateMetrics()
     body = body .. 'qsys_peripheral_status{invDeviceModel="' .. v.Model .. '",invDeviceName="' .. v.Name .. '",invDeviceType="' .. v.Type .. '",invLocation="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
   end
 
+  -- include custom metrics if enabled in Properties
+  local custom_metrics_count = Properties['Custom Metrics'].Value
+  print("We have " .. custom_metrics_count .. " custom metrics.")
+  for i=1,custom_metrics_count do
+    local metric_name, metric_value
+    -- Control names are different if there's only 1
+    if custom_metrics_count == 1 then
+      metric_name  = Controls['Metric Label'].String
+      metric_value = Controls['Metric'].Value
+    else
+      metric_name  = Controls['Metric Label'][i].String
+      metric_value = Controls['Metric'][i].Value
+    end
+    if metric_name == '' then
+      if DebugFunction then print('Skipping metric ' .. i .. ' because its name is blank.') end
+    else
+      -- Prometheus metric names may contain ASCII letters, digits, underscores, and colons.
+      local cleaned_name = metric_name:gsub('[^a-zA-Z_:]', '_')
+      
+      -- make sure we don't duplicate another metric name
+      if body:match(cleaned_name) then
+        Controls['Status'].Value = 2
+        Controls['Status'].String = 'duplicate name: ' .. cleaned_name
+        return "Error! duplicate metric: " .. cleaned_name
+      else
+        body = body .. 'qsys_' .. cleaned_name .. ' ' .. metric_value .. '\n'
+      end
+    end
+  end
+  Controls['Status'].Value = 0
   return body
 end
 

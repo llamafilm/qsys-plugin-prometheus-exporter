@@ -1,6 +1,8 @@
 -- debug mode
 -- layout['code']={PrettyName='code',Style='None'}
 
+local custom_metrics_count = props['Custom Metrics'].Value
+
 local CurrentPage = PageNames[props['page_index'].Value]
 if CurrentPage == 'Control' then
   -- header box
@@ -37,7 +39,7 @@ if CurrentPage == 'Control' then
   -- background box
   table.insert(graphics, {
     Type = 'GroupBox',
-    Size = { 400, 200 },
+    Size = { 400, 110 + 22 * custom_metrics_count },
     Position = { 0, 40},
     Fill = { 220, 220, 220 },
     StrokeWidth = 0
@@ -81,4 +83,60 @@ if CurrentPage == 'Control' then
     CornerRadius = 4
   }
 
+  -- add some number of Custom Metrics (defaults to 0)
+  if custom_metrics_count > 0 then
+    table.insert(graphics,
+    {
+      Type = "Header",
+      Text = "Custom Metrics Labels",
+      HTextAlign = "Center",
+      Color = {0, 0, 0},
+      FontSize = 12,
+      Position = {50, 120},
+      Size = {300, 20},
+    })
+
+    -- if there is only 1 Control then the  name is different
+    if custom_metrics_count == 1 then
+      table.insert(graphics, {
+        Type = 'Label',
+        HTextAlign = 'Right',
+        Text = 'Metric 1',
+        Position = { 0, 120 + 22 },
+        Size = { 180,22 },
+        Margin = 1,
+        FontSize = 12
+      })
+      layout['Metric Label'] = {
+        Style = 'Text',
+        Position = { 185, 120 + 22 },
+        Size = { 170,22 },
+        Margin = 1,
+        CornerRadius = 4,
+        FontSize = 12
+      }
+      layout['Metric'] = {Style = 'None'}
+    else
+      for i=1,custom_metrics_count do
+        table.insert(graphics, {
+          Type = 'Label',
+          HTextAlign = 'Right',
+          Text = 'Metric ' .. i,
+          Position = { 0, 120 + 22 * i },
+          Size = { 180,22 },
+          Margin = 1,
+          FontSize = 12
+        })
+        layout['Metric Label ' .. i] = {
+          Style = 'Text',
+          Position = { 185, 120 + 22 * i },
+          Size = { 170,22 },
+          Margin = 1,
+          CornerRadius = 4,
+          FontSize = 12
+        }
+        layout['Metric ' .. i] = {Style = 'None'}
+      end
+    end
+  end
 end

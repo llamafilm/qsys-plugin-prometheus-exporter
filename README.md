@@ -8,6 +8,8 @@ Older versions of Qsys require _All_ access on the Status component, but _Script
 
 Debug output logs the IP address of incoming requests if you are running version 9.8 or higher.
 
+Up to 20 additional metrics can be included by setting the `Custom Metrics` property.  This will expose input pins which can be wired to any numeric value.  You must enter labels for each one or else they will be omitted.
+
 Plugin is based on the [BasicPluginFramework](https://bitbucket.org/qsc-communities/basicpluginframework/src/main/) from QSC and includes the VS Code submodule for easy compiling.
 
 This plugin is not functional is emulation mode.
