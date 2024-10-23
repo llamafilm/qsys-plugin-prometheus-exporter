@@ -30,31 +30,11 @@ end
 
 function GetStreamDetails(rx_name)
   if DebugFunction then print("# Getting metrics from " .. rx_name) end
-  RX = Component.New(rx_name)
-  -- print(RX)
-  -- local controls = {}
-  -- for _,v in ipairs(Component.GetControls(RX)) do
-  --   controls[v.Name] = true
-  --   print(v.Name .. " = " .. RX[v.Name].String)
-  -- end
-
-  -- --print(Dump(controls))
-
-  local stream_name = RX['stream.name'].String
-  local stream_details = RX['stream.details'].String
-  local raw_sdp = RX['ds.raw.sdp'].String
-  local sdp_lan_a = RX['sdp.lan.a'].String
-  local sdp_lan_b = RX['sdp.lan.b'].String
-
-  --print(stream_name) 
-  --print(stream_details)
-  --print(raw_sdp)
-  --print(sdp_lan_a)
-  --print(sdp_lan_b)
+  local rx = Component.New(rx_name)
+  local stream_details = rx['stream.details'].String
 
   local output = ''
   for line in stream_details:gmatch("[^\r\n]+") do
-    --print(line)
     for k,v in line:gmatch("(.*): (.*)") do
       -- use the right type: gauge vs counter
       if k == 'Enabled' or k == 'Connected' or k == 'DSCP' then
@@ -204,7 +184,6 @@ function CreateMetrics()
 
     for _,rx_name in ipairs(RxComponents) do
       local aes67_metrics = GetStreamDetails(rx_name)
-
       body = body .. aes67_metrics
     end
   end
