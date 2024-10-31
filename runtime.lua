@@ -28,6 +28,42 @@ function RemoveSocketFromTable(sock)
   end
 end
 
+function GetStreamDetails(rx_name)
+  if DebugFunction then print("# Getting metrics from " .. rx_name) end
+  local rx = Component.New(rx_name)
+  local stream_details = rx['stream.details'].String
+
+  local output = ''
+  for line in stream_details:gmatch("[^\r\n]+") do
+    for k,v in line:gmatch("(.*): (.*)") do
+      -- use the right type: gauge vs counter
+      if k == 'Enabled' or k == 'Connected' or k == 'DSCP' then
+        output = output .. 'qsys_aes67_' .. k .. '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Count' then
+        output = output .. 'qsys_aes67_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Accept Count' then
+        output = output .. 'qsys_aes67_accept_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Drop Count' then
+        output = output .. 'qsys_aes67_drop_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Missing Count' then
+        output = output .. 'qsys_aes67_missing_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Duplicate Count' then
+        output = output .. 'qsys_aes67_duplicate_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'On Time' then
+        output = output .. 'qsys_aes67_ontime_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Too Late' then
+        output = output .. 'qsys_aes67_late_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'PT Mismatch' then
+        output = output .. 'qsys_aes67_pt_mismatch_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      elseif k == 'Size Mismatch' then
+        output = output .. 'qsys_aes67_size_mismatch_count' ..  '{' .. 'block="' .. rx_name .. '"} ' .. v .. '\n'
+      end
+    end
+  end
+
+  return output
+end -- end GetStreamDetails
+
 function CreateMetrics()
   local design = Design.GetStatus()
 
@@ -128,6 +164,28 @@ function CreateMetrics()
   body = body .. '# TYPE qsys_peripheral_status gauge\n'
   for k,v in pairs(Design.GetInventory()) do
     body = body .. 'qsys_peripheral_status{invDeviceModel="' .. v.Model .. '",invDeviceName="' .. v.Name .. '",invDeviceType="' .. v.Type .. '",invLocation="' .. v.Location .. '"} ' .. math.floor(v.Status.Code) .. '\n'
+  end
+
+  -- include AES67 metrics for each Rx component in the design
+  if #RxComponents > 0 then
+    -- only include TYPE once even if there are many Rx components
+    body = body .. '# TYPE qsys_aes67_Enabled gauge\n'
+    body = body .. '# TYPE qsys_aes67_Connected_count gauge\n'
+    body = body .. '# TYPE qsys_aes67_DSCP gauge\n'
+    body = body .. '# TYPE qsys_aes67_count counter\n'
+    body = body .. '# TYPE qsys_aes67_accept_count counter\n'
+    body = body .. '# TYPE qsys_aes67_drop_count counter\n'
+    body = body .. '# TYPE qsys_aes67_missing_count counter\n'
+    body = body .. '# TYPE qsys_aes67_duplicate_count counter\n'
+    body = body .. '# TYPE qsys_aes67_ontime_count counter\n'
+    body = body .. '# TYPE qsys_aes67_late_count counter\n'
+    body = body .. '# TYPE qsys_aes67_pt_mismatch_count counter\n'
+    body = body .. '# TYPE qsys_aes67_size_mismatch_count counter\n'
+
+    for _,rx_name in ipairs(RxComponents) do
+      local aes67_metrics = GetStreamDetails(rx_name)
+      body = body .. aes67_metrics
+    end
   end
 
   -- include custom metrics if enabled in Properties
@@ -286,6 +344,15 @@ else
   Controls['Status'].Value = 2
   Controls['Status'].String = 'Status component not found.  Did you enable script access?'
 end
+
+-- find all AES67 receivers in the design
+RxComponents={}
+for _,v in pairs(Components) do
+  if v.Type == 'input_box' then
+    table.insert(RxComponents,v.Name)
+  end
+end
+if DebugFunction then print('AES67 Receivers:', Dump(RxComponents)) end
 
 if Controls['Status'].Value == 0 then
   if DebugFunction then print(string.format('Listening on HTTP port %d', Controls.Port.Value)) end

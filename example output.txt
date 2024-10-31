@@ -174,3 +174,29 @@ qsys_peripheral_status{invDeviceModel="AES67 Receiver",invDeviceName="AES67-RX-1
 qsys_peripheral_status{invDeviceModel="AES67 Receiver",invDeviceName="AES67-RX-2",invDeviceType="Streaming I/O",invLocation="IP Audio"} 1
 qsys_peripheral_status{invDeviceModel="TSC-80-G2",invDeviceName="TSC80-271e",invDeviceType="Control Interface",invLocation="TSC"} 3
 qsys_peripheral_status{invDeviceModel="I/O-8 Flex",invDeviceName="tuning-io-test",invDeviceType="Audio I/O",invLocation="Default Location"} 3
+# TYPE qsys_aes67_Enabled gauge
+# TYPE qsys_aes67_Connected_count gauge
+# TYPE qsys_aes67_DSCP gauge
+# TYPE qsys_aes67_count counter
+# TYPE qsys_aes67_accept_count counter
+# TYPE qsys_aes67_drop_count counter
+# TYPE qsys_aes67_missing_count counter
+# TYPE qsys_aes67_duplicate_count counter
+# TYPE qsys_aes67_ontime_count counter
+# TYPE qsys_aes67_late_count counter
+# TYPE qsys_aes67_pt_mismatch_count counter
+# TYPE qsys_aes67_size_mismatch_count counter
+qsys_aes67_Enabled{block="AES67_Receiver_AES67-RX-1"} 1
+qsys_aes67_Connected{block="AES67_Receiver_AES67-RX-1"} 0
+qsys_aes67_Enabled{block="AES67_Receiver_AES67-RX-2"} 1
+qsys_aes67_Connected{block="AES67_Receiver_AES67-RX-2"} 1
+qsys_aes67_DSCP{block="AES67_Receiver_AES67-RX-2"} 34
+qsys_aes67_count{block="AES67_Receiver_AES67-RX-2"} 23159
+qsys_aes67_accept_count{block="AES67_Receiver_AES67-RX-2"} 23159
+qsys_aes67_drop_count{block="AES67_Receiver_AES67-RX-2"} 0
+qsys_aes67_missing_count{block="AES67_Receiver_AES67-RX-2"} 83657
+qsys_aes67_duplicate_count{block="AES67_Receiver_AES67-RX-2"} 0
+qsys_aes67_ontime_count{block="AES67_Receiver_AES67-RX-2"} 23158
+qsys_aes67_late_count{block="AES67_Receiver_AES67-RX-2"} 0
+qsys_aes67_pt_mismatch_count{block="AES67_Receiver_AES67-RX-2"} 0
+qsys_aes67_size_mismatch_count{block="AES67_Receiver_AES67-RX-2"} 0
