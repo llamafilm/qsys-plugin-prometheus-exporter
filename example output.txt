@@ -163,6 +163,17 @@ qsys_dsp_param_lat_maximum{dsp_core="2"} 128
 qsys_dsp_param_periods{dsp_core="2"} 12090
 qsys_dsp_param_overruns{dsp_core="2"} 0
 qsys_dsp_param_timeouts{dsp_core="2"} 0
+# HELP qsys_lan_speed The ethernet link speed in Mbps.
+# TYPE qsys_lan_speed gauge
+# HELP qsys_ptpv2_leader_state Boolean indicating the PTPv2 clock leader status for each interface.
+# TYPE qsys_ptpv2_leader_state gauge
+# HELP qsys_ptpv1_leader_state Boolean indicating the PTPv1 clock leader status for the Core.
+# TYPE qsys_ptpv1_leader_state gauge
+qsys_ptpv1_leader_state 1
+qsys_lan_speed{interface="lan_a"} 1000
+qsys_ptpv2_leader_state{interface="lan_a"} 1
+qsys_lan_speed{interface="lan_b"} 0
+qsys_ptpv2_leader_state{interface="lan_b"} 0
 # HELP qsys_peripheral_status Status value 0-5 for each inventory peripheral
 # TYPE qsys_peripheral_status gauge
 qsys_peripheral_status{invDeviceModel="Core Nano",invDeviceName="Core-Nano-Jar-215-Test",invDeviceType="Processor",invLocation="The Jar"} 0

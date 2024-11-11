@@ -157,6 +157,32 @@ function CreateMetrics()
         end
       end
     end
+
+    -- ethernet interface details added in 9.12
+    if (System.MajorVersion == '9' and tonumber(System.MinorVersion) >= 12) or tonumber(System.MajorVersion) > 9 then
+      body = body .. '# HELP qsys_lan_speed The ethernet link speed in Mbps.\n'
+      body = body .. '# TYPE qsys_lan_speed gauge\n'
+      body = body .. '# HELP qsys_ptpv2_leader_state Boolean indicating the PTPv2 clock leader status for each interface.\n'
+      body = body .. '# TYPE qsys_ptpv2_leader_state gauge\n'
+      body = body .. '# HELP qsys_ptpv1_leader_state Boolean indicating the PTPv1 clock leader status for the Core.\n'
+      body = body .. '# TYPE qsys_ptpv1_leader_state gauge\n'
+      local v1_leader_state = 1
+      if Status['ptpv1.dante'].String == 'Master' then
+        v1_leader_state = 1
+      end
+      body = body .. 'qsys_ptpv1_leader_state ' .. v1_leader_state .. '\n'
+
+      for _,iface in pairs({'a', 'b', 'aux'}) do
+        local v2_leader_state = 0
+        if Status['lan.' .. iface .. '.speed'] ~= nil then -- if interface physically exists
+          if Status['lan.' .. iface .. '.state'].String == 'Master' then
+            v2_leader_state = 1
+          end
+          body = body .. 'qsys_lan_speed{interface="lan_' .. iface .. '"} ' ..  tonumber(Status['lan.' .. iface .. '.speed'].String) .. '\n'
+          body = body .. 'qsys_ptpv2_leader_state{interface="lan_' .. iface .. '"} ' .. v2_leader_state .. '\n'  
+        end
+      end
+    end
   end
 
   -- provides same info as SNMP invDeviceStatusValue
@@ -296,7 +322,8 @@ Controls['Status Component Name'].EventHandler = Initialize
 
 Server.EventHandler = function(SocketInstance) -- the properties of this socket instance are those of the TcpSocket library
   SocketInstance.ReadTimeout = 2
-  if tonumber(System.MajorVersion) >= 9 and tonumber(System.MinorVersion) >= 8 then
+  -- PeerAddress property was added in 9.8
+  if (System.MajorVersion == '9' and tonumber(System.MinorVersion) >= 8) or tonumber(System.MajorVersion) > 9 then
     if DebugRx then print( "# Got connection from", SocketInstance.PeerAddress ) end
   else
     if DebugRx then print( "# Got connection") end
