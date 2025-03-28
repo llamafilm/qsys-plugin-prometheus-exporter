@@ -67,9 +67,29 @@ end -- end GetStreamDetails
 function CreateMetrics()
   local design = Design.GetStatus()
 
-  local body = '# HELP qsys_chassis_temperature The current temperature, in Celsius, of the Core chassis.\n'
-  body = body .. '# TYPE qsys_chassis_temperature gauge\n'
-  body = body .. 'qsys_chassis_temperature ' .. Status['system.temperature'].Value .. '\n'
+  -- build list of available controls so we can skip any that don't exist (i.e. DSP 2)
+  local status_controls = {}
+  for _,v in ipairs(Component.GetControls(Status)) do
+    status_controls[v.Name] = true
+  end
+
+  local body = '# HELP qsys_exporter_build_info A metric with a constant \'1\' value labeled with the plugin version.\n'
+  body = body .. '# TYPE qsys_exporter_build_info gauge\n'
+  body = body .. 'qsys_exporter_build_info{version="' .. PluginInfo.BuildVersion .. '"} 1\n'
+
+  if status_controls['system.temperature'] then
+    -- this doesn't exist on Core 610
+    body = body .. '# HELP qsys_chassis_temperature The current temperature, in Celsius, of the Core chassis.\n'
+    body = body .. '# TYPE qsys_chassis_temperature gauge\n'
+    body = body .. 'qsys_chassis_temperature ' .. Status['system.temperature'].Value .. '\n'
+  end
+
+  if status_controls['system.fan.1.speed'] then
+    -- this doesn't exist on Core 610
+    body = body .. '# HELP qsys_chassis_fan The current speed of the chassis fan in RPM.\n'
+    body = body .. '# TYPE qsys_chassis_fan gauge\n'
+    body = body .. 'qsys_chassis_fan ' ..  math.floor(Status['system.fan.1.speed'].Value) .. '\n'
+  end
 
   body = body .. '# HELP qsys_core_status Number from 0 to 5. O=OK, 1=compromised, 2=fault, 3=not present, 4=missing, 5=initializing\n'
   body = body .. '# TYPE qsys_core_status gauge\n'
@@ -78,10 +98,6 @@ function CreateMetrics()
   body = body .. '# HELP qsys_core_info A metric with a constant \'1\' value with labels for textual data. Grandmaster is either Core name or the PTP Clock GUID\n'
   body = body .. '# TYPE qsys_core_info gauge\n'
   body = body .. 'qsys_core_info{ptp_grandmaster="' .. Status['grandmaster.name'].String .. '",ptp_parent_port="' .. Status['parent.port.name'].String .. '",version="' .. System.Version .. '",platform="' .. design.Platform .. '",design_code="' .. design.DesignCode .. '",design_name="' .. design.DesignName .. '"} 1' .. '\n'
-
-  body = body .. '# HELP qsys_chassis_fan The current speed of the chassis fan in RPM.\n'
-  body = body .. '# TYPE qsys_chassis_fan gauge\n'
-  body = body .. 'qsys_chassis_fan ' ..  math.floor(Status['system.fan.1.speed'].Value) .. '\n'
 
   body = body .. '# HELP qsys_ptp_master boolean indicating if the Core is the Master Clock for the Q-SYS system or not. The Core can be the Master Clock even if the clock is synchronized to an external clock.\n'
   body = body .. '# TYPE qsys_ptp_master gauge\n'
@@ -115,26 +131,21 @@ function CreateMetrics()
     body = body .. '# TYPE qsys_compute_process gauge\n'
     body = body .. 'qsys_compute_process ' ..  Status['process.compute.usage'].Value .. '\n'
 
-    -- each core has either block or block512, not both
+    -- Each core has either block or block512, not both. Core 610 has both 256 and 512
     local cpu_stats = {
       'cpu.status.audio.#.statistics',
+      'cpu.status.block.#.256.statistics',
       'cpu.status.block.#.512.statistics',
       'cpu.status.block.#.statistics',
       'cpu.status.param.#.statistics'
     }
 
-    -- build list of available controls so we can skip any that don't exist (i.e. DSP 2)
-    local controls = {}
-    for _,v in ipairs(Component.GetControls(Status)) do
-      controls[v.Name] = true
-    end
-
     for _,stat in ipairs(cpu_stats) do
       -- iterate through DSP blocks 0,1,2
       for i = 0,2,1 do
         local full_stat = stat:gsub('#', i, 1)
-        if controls[full_stat] ~= nil then
-          local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_', 2):gsub('%.#', '', 1):gsub('%.statistics', ''):gsub('_status_', '_'):gsub('%.512', '')
+        if status_controls[full_stat] ~= nil then
+          local label = stat:gsub('cpu', 'dsp', 1):gsub('%.', '_'):gsub('_#', '', 1):gsub('_statistics', ''):gsub('_status_', '_')
           for line in Status[full_stat].String:gmatch("[^\r\n]+") do
             for k,v in line:gmatch("(.*): (.*)") do
               if k:find('average') then
@@ -179,7 +190,7 @@ function CreateMetrics()
             v2_leader_state = 1
           end
           body = body .. 'qsys_lan_speed{interface="lan_' .. iface .. '"} ' ..  tonumber(Status['lan.' .. iface .. '.speed'].String) .. '\n'
-          body = body .. 'qsys_ptpv2_leader_state{interface="lan_' .. iface .. '"} ' .. v2_leader_state .. '\n'  
+          body = body .. 'qsys_ptpv2_leader_state{interface="lan_' .. iface .. '"} ' .. v2_leader_state .. '\n'
         end
       end
     end

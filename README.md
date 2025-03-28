@@ -1,10 +1,10 @@
 # Prometheus Exporter Plugin
 
-This plugin provides metrics about the Qsys Core to a Prometheus scraper on HTTP port 10006.  HTTPS is not supported. 
+This plugin provides metrics about the Qsys Core to a Prometheus scraper on HTTP port 10006.  HTTPS is not supported.
 You must have a Core Status component in the design with script access enabled.  This plugin should detect the name of that component automatically, and in the unlikely event you have more than one Status component you can select it by name.  The Status component should have verbose mode enabled or else some metrics will be unavailable.
 
-Available metrics may vary depending on Core model.  This has been tested on Nano, 110f, and 510i.
-Older versions of Qsys require _All_ access on the Status component, but _Script_ is sufficient on 9.8 and 9.9.
+Available metrics may vary depending on Core model.  This has been tested on Nano, 110f, 510i, and 610.
+Older versions of Qsys require _All_ access on the Status component, but _Script_ is sufficient since 9.8.
 
 If you want to include packet counters for AES67 and Atmos receivers, enable script access for those components too. (tested only on 9.9)
 

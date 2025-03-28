@@ -1,3 +1,6 @@
+# HELP qsys_exporter_build_info A metric with a constant '1' value labeled with the plugin version.
+# TYPE qsys_exporter_build_info gauge
+qsys_exporter_build_info{version="1.7.0.5"} 1
 # HELP qsys_chassis_temperature The current temperature, in Celsius, of the Core chassis.
 # TYPE qsys_chassis_temperature gauge
 qsys_chassis_temperature 38.0
