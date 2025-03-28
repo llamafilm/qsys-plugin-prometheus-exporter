@@ -78,50 +78,50 @@ qsys_dsp_audio_lat_maximum{dsp_core="2"} 47
 qsys_dsp_audio_periods{dsp_core="2"} 1208993
 qsys_dsp_audio_overruns{dsp_core="2"} 0
 qsys_dsp_audio_timeouts{dsp_core="2"} 0
-# TYPE qsys_dsp_block_current gauge
-qsys_dsp_block_current{dsp_core="0"} 0
-# TYPE qsys_dsp_block_minimum counter
-qsys_dsp_block_minimum{dsp_core="0"} 0
-# TYPE qsys_dsp_block_spread gauge
-qsys_dsp_block_spread{dsp_core="0"} 0
-# TYPE qsys_dsp_block_maximum counter
-qsys_dsp_block_maximum{dsp_core="0"} 0
-# TYPE qsys_dsp_block_lat_current gauge
-qsys_dsp_block_lat_current{dsp_core="0"} 0
-# TYPE qsys_dsp_block_lat_minimum counter
-qsys_dsp_block_lat_minimum{dsp_core="0"} 0
-# TYPE qsys_dsp_block_lat_spread gauge
-qsys_dsp_block_lat_spread{dsp_core="0"} 0
-# TYPE qsys_dsp_block_lat_maximum counter
-qsys_dsp_block_lat_maximum{dsp_core="0"} 0
-# TYPE qsys_dsp_block_periods counter
-qsys_dsp_block_periods{dsp_core="0"} 0
-# TYPE qsys_dsp_block_overruns counter
-qsys_dsp_block_overruns{dsp_core="0"} 0
-# TYPE qsys_dsp_block_timeouts counter
-qsys_dsp_block_timeouts{dsp_core="0"} 0
-qsys_dsp_block_current{dsp_core="1"} 0
-qsys_dsp_block_minimum{dsp_core="1"} 0
-qsys_dsp_block_spread{dsp_core="1"} 0
-qsys_dsp_block_maximum{dsp_core="1"} 0
-qsys_dsp_block_lat_current{dsp_core="1"} 0
-qsys_dsp_block_lat_minimum{dsp_core="1"} 0
-qsys_dsp_block_lat_spread{dsp_core="1"} 0
-qsys_dsp_block_lat_maximum{dsp_core="1"} 0
-qsys_dsp_block_periods{dsp_core="1"} 0
-qsys_dsp_block_overruns{dsp_core="1"} 0
-qsys_dsp_block_timeouts{dsp_core="1"} 0
-qsys_dsp_block_current{dsp_core="2"} 0
-qsys_dsp_block_minimum{dsp_core="2"} 0
-qsys_dsp_block_spread{dsp_core="2"} 0
-qsys_dsp_block_maximum{dsp_core="2"} 0
-qsys_dsp_block_lat_current{dsp_core="2"} 0
-qsys_dsp_block_lat_minimum{dsp_core="2"} 0
-qsys_dsp_block_lat_spread{dsp_core="2"} 0
-qsys_dsp_block_lat_maximum{dsp_core="2"} 0
-qsys_dsp_block_periods{dsp_core="2"} 0
-qsys_dsp_block_overruns{dsp_core="2"} 0
-qsys_dsp_block_timeouts{dsp_core="2"} 0
+# TYPE qsys_dsp_block_512_current gauge
+qsys_dsp_block_512_current{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_minimum counter
+qsys_dsp_block_512_minimum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_spread gauge
+qsys_dsp_block_512_spread{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_maximum counter
+qsys_dsp_block_512_maximum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_lat_current gauge
+qsys_dsp_block_512_lat_current{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_lat_minimum counter
+qsys_dsp_block_512_lat_minimum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_lat_spread gauge
+qsys_dsp_block_512_lat_spread{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_lat_maximum counter
+qsys_dsp_block_512_lat_maximum{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_periods counter
+qsys_dsp_block_512_periods{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_overruns counter
+qsys_dsp_block_512_overruns{dsp_core="0"} 0
+# TYPE qsys_dsp_block_512_timeouts counter
+qsys_dsp_block_512_timeouts{dsp_core="0"} 0
+qsys_dsp_block_512_current{dsp_core="1"} 0
+qsys_dsp_block_512_minimum{dsp_core="1"} 0
+qsys_dsp_block_512_spread{dsp_core="1"} 0
+qsys_dsp_block_512_maximum{dsp_core="1"} 0
+qsys_dsp_block_512_lat_current{dsp_core="1"} 0
+qsys_dsp_block_512_lat_minimum{dsp_core="1"} 0
+qsys_dsp_block_512_lat_spread{dsp_core="1"} 0
+qsys_dsp_block_512_lat_maximum{dsp_core="1"} 0
+qsys_dsp_block_512_periods{dsp_core="1"} 0
+qsys_dsp_block_512_overruns{dsp_core="1"} 0
+qsys_dsp_block_512_timeouts{dsp_core="1"} 0
+qsys_dsp_block_512_current{dsp_core="2"} 1546
+qsys_dsp_block_512_minimum{dsp_core="2"} 1243
+qsys_dsp_block_512_spread{dsp_core="2"} 67
+qsys_dsp_block_512_maximum{dsp_core="2"} 1700
+qsys_dsp_block_512_lat_current{dsp_core="2"} 17
+qsys_dsp_block_512_lat_minimum{dsp_core="2"} 4
+qsys_dsp_block_512_lat_spread{dsp_core="2"} 5
+qsys_dsp_block_512_lat_maximum{dsp_core="2"} 52
+qsys_dsp_block_512_periods{dsp_core="2"} 38906
+qsys_dsp_block_512_overruns{dsp_core="2"} 0
+qsys_dsp_block_512_timeouts{dsp_core="2"} 0
 # TYPE qsys_dsp_param_current gauge
 qsys_dsp_param_current{dsp_core="0"} 96
 # TYPE qsys_dsp_param_minimum counter
