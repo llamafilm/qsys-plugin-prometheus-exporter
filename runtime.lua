@@ -171,6 +171,8 @@ function CreateMetrics()
 
     -- ethernet interface details added in 9.12
     if (System.MajorVersion == '9' and tonumber(System.MinorVersion) >= 12) or tonumber(System.MajorVersion) > 9 then
+      body = body .. '# HELP qsys_lan_active Boolean indicating the ethernet link is active.\n'
+      body = body .. '# TYPE qsys_lan_active gauge\n'
       body = body .. '# HELP qsys_lan_speed The ethernet link speed in Mbps.\n'
       body = body .. '# TYPE qsys_lan_speed gauge\n'
       body = body .. '# HELP qsys_ptpv2_leader_state Boolean indicating the PTPv2 clock leader status for each interface.\n'
@@ -184,13 +186,16 @@ function CreateMetrics()
       body = body .. 'qsys_ptpv1_leader_state ' .. v1_leader_state .. '\n'
 
       for _,iface in pairs({'a', 'b', 'aux'}) do
-        local v2_leader_state = 0
-        if Status['lan.' .. iface .. '.speed'] ~= nil then -- if interface physically exists
-          if Status['lan.' .. iface .. '.state'].String == 'Master' then
-            v2_leader_state = 1
+        local active = Status['lan.' .. iface .. '.active']
+        if active == nil then
+          -- interface doesn't exist
+        else
+          body = body .. 'qsys_lan_active{interface="lan_' .. iface .. '"} ' ..  active.Value .. '\n'
+          if active.Boolean then
+            local v2_leader_state = Status['lan.' .. iface .. '.state'].String == 'Master' and 1 or 0
+            body = body .. 'qsys_lan_speed{interface="lan_' .. iface .. '"} ' ..  tonumber(Status['lan.' .. iface .. '.speed'].String) .. '\n'
+            body = body .. 'qsys_ptpv2_leader_state{interface="lan_' .. iface .. '"} ' .. v2_leader_state .. '\n'
           end
-          body = body .. 'qsys_lan_speed{interface="lan_' .. iface .. '"} ' ..  tonumber(Status['lan.' .. iface .. '.speed'].String) .. '\n'
-          body = body .. 'qsys_ptpv2_leader_state{interface="lan_' .. iface .. '"} ' .. v2_leader_state .. '\n'
         end
       end
     end
