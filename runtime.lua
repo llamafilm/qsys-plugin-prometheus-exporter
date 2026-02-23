@@ -175,7 +175,7 @@ function CreateMetrics()
       body = body .. '# TYPE qsys_lan_active gauge\n'
       body = body .. '# HELP qsys_lan_speed The ethernet link speed in Mbps.\n'
       body = body .. '# TYPE qsys_lan_speed gauge\n'
-      body = body .. '# HELP qsys_ptpv2_leader_state Boolean indicating the PTPv2 clock leader status for each interface.\n'
+      body = body .. '# HELP qsys_ptpv2_leader_state PTPv2 clock leader status for each interface. 1=Master, 2=Slave, 0=Disabled or null\n'
       body = body .. '# TYPE qsys_ptpv2_leader_state gauge\n'
       body = body .. '# HELP qsys_ptpv1_leader_state Boolean indicating the PTPv1 clock leader status for the Core.\n'
       body = body .. '# TYPE qsys_ptpv1_leader_state gauge\n'
@@ -192,7 +192,12 @@ function CreateMetrics()
         else
           body = body .. 'qsys_lan_active{interface="lan_' .. iface .. '"} ' ..  active.Value .. '\n'
           if active.Boolean then
-            local v2_leader_state = Status['lan.' .. iface .. '.state'].String == 'Master' and 1 or 0
+            local v2_leader_state = 0
+            if Status['lan.' .. iface .. '.state'].String == 'Master' then
+              v2_leader_state = 1
+            elseif Status['lan.' .. iface .. '.state'].String == 'Slave' then
+              v2_leader_state = 2
+            end
             body = body .. 'qsys_lan_speed{interface="lan_' .. iface .. '"} ' ..  tonumber(Status['lan.' .. iface .. '.speed'].String) .. '\n'
             body = body .. 'qsys_ptpv2_leader_state{interface="lan_' .. iface .. '"} ' .. v2_leader_state .. '\n'
           end
