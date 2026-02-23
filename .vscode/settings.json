@@ -19,5 +19,6 @@
     "TcpSocket",
     "TcpSocketServer",
     "Component"
-  ]
+  ],
+  "files.trimTrailingWhitespace": false
 }
