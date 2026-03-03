@@ -5,7 +5,7 @@
 PluginInfo = {
   Name = "Prometheus Exporter",
   Version = "1.8",
-  BuildVersion = "1.8.0.0",
+  BuildVersion = "1.8.1.0",
   Id = "7d72a60b-48b7-4cf8-a498-6537aa0ff997",
   Author = "Elliott Balsley",
   Description = "Prometheus Exporter for Qsys Core metrics",
@@ -574,14 +574,14 @@ if Controls then
       if DebugRx then print('# Received ' .. protocol .. ' request ' .. url) end
       if(url == '/metrics') then
         local body = CreateMetrics()
-        local payload = protocol .. ' 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
+        local payload = protocol .. ' 200 OK\r\nConnection: close\r\nContent-Type: text/plain; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
         sock:Write(payload)
       elseif(url == '/') then
         local body = '<html><head><title>Qsys Exporter</title><style>body {font-family:sans-serif; margin: 0;} header {  background-color: #e6522c;  color: #fff;  font-size: 1rem;  padding: 1rem;} main {padding: 1rem;} label {  display: inline-block;  width: 0.5em;}</style></head><body><header><h1>Qsys Core Exporter</h1></header><main><h2>Prometheus Exporter for Qsys Core</h2><div><ul><li><a href="/metrics">Metrics</a></li></ul></div></main></body></html>'
-        local payload = protocol .. ' 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
+        local payload = protocol .. ' 200 OK\r\nConnection: close\r\nContent-Type: text/html; charset=utf-8\r\nDate: ' .. os.date() ..  '\r\nContent-Length: ' .. string.len(body) .. '\r\n\r\n' .. body
         sock:Write(payload)
       else
-        local payload = protocol .. ' 404 Not Found\r\nDate: ' .. os.date() .. '\r\nContent-Length: 0\r\n\r\n'
+        local payload = protocol .. ' 404 Not Found\r\nConnection: close\r\nDate: ' .. os.date() .. '\r\nContent-Length: 0\r\n\r\n'
         sock:Write(payload)
       end
   
